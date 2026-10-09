@@ -1,11 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Eye, Clock, Sparkles, Activity, ShieldCheck, History } from "lucide-react";
+import { Clock, Sparkles, Activity, History } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { mockResults, mockStudents, mockUsers } from "@/lib/mock-data";
 import { api } from "@/lib/api-client";
-import { shouldUseRealAPI } from "@/lib/api-config";
 
 export default function VerifierLogPage() {
   const [activityLog, setActivityLog] = useState<any[]>([]);
@@ -13,32 +11,12 @@ export default function VerifierLogPage() {
 
   useEffect(() => {
     const fetchActivityLog = async () => {
-      if (!shouldUseRealAPI()) {
-        const mockLog = mockResults
-          .filter((r) => r.status !== "draft")
-          .sort((a, b) => {
-            const dateA = a.submittedAt ? new Date(a.submittedAt).getTime() : 0;
-            const dateB = b.submittedAt ? new Date(b.submittedAt).getTime() : 0;
-            return dateB - dateA;
-          });
-        setActivityLog(mockLog);
-        setLoading(false);
-        return;
-      }
-
       try {
         const logs = await api.reports.getActivityLog({ limit: 100 });
-        setActivityLog(logs);
+        setActivityLog(logs || []);
       } catch (error) {
         console.error("Failed to fetch activity log:", error);
-        const mockLog = mockResults
-          .filter((r) => r.status !== "draft")
-          .sort((a, b) => {
-            const dateA = a.submittedAt ? new Date(a.submittedAt).getTime() : 0;
-            const dateB = b.submittedAt ? new Date(b.submittedAt).getTime() : 0;
-            return dateB - dateA;
-          });
-        setActivityLog(mockLog);
+        setActivityLog([]);
       } finally {
         setLoading(false);
       }
@@ -46,11 +24,6 @@ export default function VerifierLogPage() {
 
     fetchActivityLog();
   }, []);
-
-  const isMockView =
-    !shouldUseRealAPI() ||
-    activityLog.length === 0 ||
-    activityLog[0]?.studentId;
 
   return (
     <div className="space-y-6 sm:space-y-8 animate-in fade-in-50 duration-300">
@@ -115,60 +88,11 @@ export default function VerifierLogPage() {
           <div className="p-12 text-center text-slate-400 dark:text-neutral-500">
             No system activity logged for this cycle.
           </div>
-        ) : isMockView ? (
-          <div className="divide-y divide-slate-100 dark:divide-white/5">
-            {activityLog.map((result) => {
-              const student = mockStudents.find(
-                (s) => s.id === result.studentId,
-              );
-              const assessor = mockUsers.find(
-                (u) => u.id === result.assessorId,
-              );
-
-              return (
-                <div
-                  key={result.id}
-                  className="p-5 sm:px-6 sm:py-4 flex items-start gap-4 hover:bg-slate-50/80 dark:hover:bg-white/[0.02] transition-colors"
-                >
-                  <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-white/5 text-[#c8102e] dark:text-[#ff4d6a] border border-slate-200/80 dark:border-white/10 flex items-center justify-center shrink-0 mt-0.5">
-                    <Activity className="w-4 h-4" />
-                  </div>
-
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <p className="font-bold text-sm text-slate-900 dark:text-white">
-                        {student?.fullName || "Candidate Assessment"}
-                      </p>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-neutral-300">
-                        {result.competency}
-                      </span>
-                    </div>
-
-                    <p className="text-xs text-slate-500 dark:text-neutral-400 mt-1 font-mono">
-                      Candidate Code: {student?.code} · Assessed by{" "}
-                      {assessor?.fullName || "Staff"}
-                    </p>
-                  </div>
-
-                  <div className="text-right shrink-0">
-                    <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/30">
-                      {result.status}
-                    </span>
-                    {result.submittedAt && (
-                      <p className="text-[11px] text-slate-400 dark:text-neutral-500 mt-1 font-mono">
-                        {new Date(result.submittedAt).toLocaleDateString()}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
         ) : (
           <div className="divide-y divide-slate-100 dark:divide-white/5">
-            {activityLog.map((log: any) => (
+            {activityLog.map((log: any, idx: number) => (
               <div
-                key={log.id}
+                key={log.id || idx}
                 className="p-5 sm:px-6 sm:py-4 flex items-start gap-4 hover:bg-slate-50/80 dark:hover:bg-white/[0.02] transition-colors"
               >
                 <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-white/5 text-[#c8102e] dark:text-[#ff4d6a] border border-slate-200/80 dark:border-white/10 flex items-center justify-center shrink-0 mt-0.5">
@@ -178,7 +102,7 @@ export default function VerifierLogPage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <p className="font-bold text-sm text-slate-900 dark:text-white">
-                      {log.actionType}
+                      {log.actionType || "System Action"}
                     </p>
                     {log.entityType && (
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-neutral-300">

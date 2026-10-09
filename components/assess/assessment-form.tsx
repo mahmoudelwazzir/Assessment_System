@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { mockTasks } from "@/lib/mock-data";
 import type {
   Grade,
   Student,
@@ -68,9 +67,8 @@ export function AssessmentForm({
   onCancel,
 }: AssessmentFormProps) {
   const { toast } = useToast();
-  // Use external tasks if provided, otherwise fall back to mock tasks
-  const tasks: Task[] =
-    externalTasks || mockTasks[student.competency ?? ""] || [];
+  // Use real tasks passed from backend API
+  const tasks: Task[] = externalTasks || [];
 
   console.log("=== ASSESSMENT FORM INITIALIZED ===");
   console.log("Student competency:", student.competency);

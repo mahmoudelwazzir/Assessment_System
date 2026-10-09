@@ -24,9 +24,8 @@ import { Badge } from "@/components/ui/badge";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import { FileCheck, CheckCircle2, XCircle } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { mockCompetencies } from "@/lib/mock-data";
-import { Student } from "@/lib/types";
+// Competencies should be supplied via props or API
+const mockCompetencies: any[] = [];
 
 interface AssessmentSheetProps {
   student: Student;
