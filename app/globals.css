@@ -1,0 +1,242 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Custom Scrollbar */
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: 10px;
+    transition: background 0.2s ease;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.5);
+  }
+
+  /* Smooth Animations */
+  .animate-in {
+    animation: slideIn 0.3s ease-out;
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Glass Effect */
+  .glass-effect {
+    background: hsl(var(--background) / 0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  /* Elsewedy Grid Pattern */
+  .elsewedy-grid {
+    background-image: 
+      linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 40px 40px;
+    mask-image: radial-gradient(circle at center, black 40%, transparent 80%);
+    -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 80%);
+  }
+
+  /* Elsewedy Glow Effect */
+  .elsewedy-glow {
+    background: radial-gradient(circle, rgba(200, 16, 46, 0.28) 0%, rgba(200, 16, 46, 0.08) 45%, transparent 70%);
+  }
+
+  /* Elsewedy Brand Gradient */
+  .elsewedy-gradient {
+    background: linear-gradient(135deg, #c8102e 0%, #e8192f 50%, #a00d25 100%);
+  }
+
+  /* Gradient Text */
+  .gradient-text {
+    background: linear-gradient(
+      135deg,
+      #c8102e,
+      #ff4d6a
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+@layer base {
+  :root {
+    /* Modern Premium Red & White Color Palette */
+    --background: 0 0% 98%;
+    --foreground: 0 0% 9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 9%;
+
+    --primary: 350 85% 45%; /* Deep luxury red */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 93%;
+    --secondary-foreground: 0 0% 9%;
+
+    --muted: 0 0% 93%;
+    --muted-foreground: 0 0% 45%;
+
+    --accent: 350 80% 50%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 350 85% 45%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 142 71% 40%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    --border: 0 0% 85%;
+    --input: 0 0% 85%;
+    --ring: 350 85% 45%;
+
+    --chart-1: 350 85% 45%;
+    --chart-2: 142 71% 40%;
+    --chart-3: 38 92% 50%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+
+    --radius: 0.75rem; /* Modern 12px rounded corners */
+
+    /* Sidebar Colors - White Theme */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 0 0% 9%;
+    --sidebar-primary: 350 85% 45%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 96%;
+    --sidebar-accent-foreground: 0 0% 9%;
+    --sidebar-border: 0 0% 90%;
+    --sidebar-ring: 350 85% 45%;
+  }
+
+  .dark {
+    --background: 240 6% 3%; /* #080809 Obsidian */
+    --foreground: 240 10% 96%; /* #f2f2f7 Platinum */
+
+    --card: 240 10% 7%; /* #121217 Surface */
+    --card-foreground: 240 10% 96%;
+
+    --popover: 240 10% 7%;
+    --popover-foreground: 240 10% 96%;
+
+    --primary: 350 85% 42%; /* #c8102e Official Elsewedy Red */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 240 6% 12%; /* #1c1c22 */
+    --secondary-foreground: 240 10% 96%;
+
+    --muted: 240 6% 12%;
+    --muted-foreground: 240 5% 65%; /* #99a */
+
+    --accent: 350 85% 50%; /* #e8192f Elsewedy Crimson */
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 350 85% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 0%;
+
+    --border: 240 6% 14%; /* rgba(255,255,255,0.08) */
+    --input: 240 6% 13%;
+    --ring: 350 85% 42%;
+
+    --chart-1: 350 85% 45%;
+    --chart-2: 142 71% 45%;
+    --chart-3: 38 92% 50%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+
+    --sidebar-background: 240 6% 5%;
+    --sidebar-foreground: 240 10% 96%;
+    --sidebar-primary: 350 85% 42%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 6% 12%;
+    --sidebar-accent-foreground: 240 10% 96%;
+    --sidebar-border: 240 6% 14%;
+    --sidebar-ring: 350 85% 42%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family:
+      "Inter",
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      "Roboto",
+      "Oxygen",
+      "Ubuntu",
+      "Cantarell",
+      sans-serif;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-semibold tracking-tight;
+  }
+
+  h1 {
+    @apply text-3xl lg:text-4xl;
+  }
+
+  h2 {
+    @apply text-2xl lg:text-3xl;
+  }
+
+  h3 {
+    @apply text-xl lg:text-2xl;
+  }
+}
