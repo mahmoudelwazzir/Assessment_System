@@ -1,6 +1,6 @@
 // API Client for Assessment Platform
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://sewedyassessmentsys.runasp.net/api";
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5247/api";
 
 // Types matching backend DTOs
 export interface LoginRequest {

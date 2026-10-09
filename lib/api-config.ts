@@ -6,7 +6,7 @@ export const API_CONFIG = {
   USE_REAL_API: true,
 
   // Backend API URL
-  BASE_URL: "https://sewedyassessmentsys.runasp.net/api",
+  BASE_URL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:5247/api",
 
   // Timeout for API requests (milliseconds)
   TIMEOUT: 10000,
