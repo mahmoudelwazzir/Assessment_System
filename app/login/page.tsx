@@ -35,7 +35,7 @@ const DEMO_ROLES = [
     id: "control",
     roleName: "Control",
     title: "System Admin / Control",
-    email: "controller@gmail.com",
+    email: "controler@gmail.com",
     password: "123456",
     badge: "Control Panel",
     border: "border-red-500/40",
@@ -473,7 +473,7 @@ export default function LoginPage() {
                       <Input
                         id="email"
                         type="text"
-                        placeholder="controller@gmail.com"
+                        placeholder="controler@gmail.com"
                         value={email}
                         onChange={(e) => {
                           setEmail(e.target.value);

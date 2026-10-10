@@ -21,6 +21,8 @@ namespace AssessmentWebApi.Repository.AuthRepository
         public async Task<LoginResDto> Login(LoginReqDto request)
         {
             var searchKey = (request.Email ?? "").Trim().ToLower();
+            if (searchKey == "controller@gmail.com") searchKey = "controler@gmail.com";
+
             var account = await _context.Accounts
                 .Include(a => a.Role)
                 .Include(a => a.Status)
