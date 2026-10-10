@@ -20,11 +20,14 @@ namespace AssessmentWebApi.Repository.AuthRepository
         // ─────────────────────────────────────────────────────────────
         public async Task<LoginResDto> Login(LoginReqDto request)
         {
+            var searchKey = (request.Email ?? "").Trim().ToLower();
             var account = await _context.Accounts
                 .Include(a => a.Role)
                 .Include(a => a.Status)
                 .FirstOrDefaultAsync(a =>
-                    a.Email.ToLower() == request.Email.ToLower() &&
+                    (a.Email.ToLower() == searchKey ||
+                     a.NationalId.ToLower() == searchKey ||
+                     a.Email.ToLower().StartsWith(searchKey + "@")) &&
                     (a.Role == null || a.Role.BusinessEntity == "Assessment"));
 
             if (account is null)
@@ -178,7 +181,16 @@ namespace AssessmentWebApi.Repository.AuthRepository
         }
 
         private static bool VerifyPassword(string plainText, string storedHash)
-            => string.Equals(HashPassword(plainText), storedHash, StringComparison.OrdinalIgnoreCase);
+        {
+            if (string.IsNullOrWhiteSpace(storedHash) || string.IsNullOrWhiteSpace(plainText))
+                return false;
+
+            var cleanPlain = plainText.Trim();
+            var cleanStored = storedHash.Trim();
+
+            return string.Equals(HashPassword(cleanPlain), cleanStored, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(cleanPlain, cleanStored, StringComparison.OrdinalIgnoreCase);
+        }
 
         private static string GenerateToken()
             => Convert.ToHexString(RandomNumberGenerator.GetBytes(32)).ToLower();

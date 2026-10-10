@@ -50,109 +50,54 @@ const features = [
 
 export function Features() {
   return (
-    <section id="features" className="py-32 px-6 lg:px-8 bg-white">
-      <div className="max-w-7xl mx-auto">
+    <section id="features" className="py-32 px-6 lg:px-8 bg-[#0a0a0f] relative overflow-hidden border-t border-white/5">
+      {/* Ambient background glows */}
+      <div className="absolute top-1/4 -left-40 w-96 h-96 rounded-full bg-[#c8102e]/10 blur-[130px] pointer-events-none" />
+      <div className="absolute bottom-10 right-0 w-80 h-80 rounded-full bg-[#e8192f]/10 blur-[120px] pointer-events-none" />
+
+      <div className="max-w-7xl mx-auto relative z-10">
         {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-24">
-          <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-red-50 border border-red-100 mb-8">
-            <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-            <span className="text-sm font-medium text-gray-900">
-              Core Features
+        <div className="text-center max-w-3xl mx-auto mb-20">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#c8102e]/15 border border-[#c8102e]/30 mb-6 shadow-sm">
+            <div className="w-2 h-2 rounded-full bg-[#ff4d6a] animate-pulse" />
+            <span className="text-xs font-bold uppercase tracking-wider text-[#ff4d6a]">
+              Core Capabilities
             </span>
           </div>
-          <h2 className="text-5xl sm:text-6xl font-bold text-gray-900 mb-8">
+
+          <h2 className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight leading-tight mb-6">
             Everything You Need for
             <br />
-            <span className="text-primary">Modern Assessment</span>
+            <span className="bg-gradient-to-r from-[#c8102e] via-[#ff4d6a] to-[#c8102e] bg-clip-text text-transparent">
+              Industrial Assessment Excellence
+            </span>
           </h2>
-          <p className="text-xl text-gray-600">
-            Powerful tools designed for engineering education excellence
+          <p className="text-base sm:text-lg text-neutral-300 max-w-2xl mx-auto leading-relaxed">
+            Enterprise-grade infrastructure designed for vocational and engineering education rigor.
           </p>
         </div>
 
         {/* Features Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
           {features.map((feature) => (
             <div
               key={feature.title}
-              className="group relative p-10 rounded-2xl bg-white/60 backdrop-blur-sm border border-gray-200 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300"
+              className="group relative p-8 rounded-3xl bg-white/[0.03] backdrop-blur-md border border-white/10 hover:border-[#c8102e]/40 hover:bg-white/[0.06] transition-all duration-300 hover:-translate-y-1 shadow-lg shadow-black/40"
             >
-              {/* Icon */}
-              <div className="w-16 h-16 rounded-xl bg-red-50 flex items-center justify-center mb-6 group-hover:bg-red-100 transition-all duration-300">
-                <feature.icon className="w-8 h-8 text-primary" />
+              {/* Icon Container */}
+              <div className="w-14 h-14 rounded-2xl bg-[#c8102e]/15 border border-[#c8102e]/30 flex items-center justify-center mb-6 group-hover:scale-105 group-hover:bg-[#c8102e]/25 transition-all duration-300">
+                <feature.icon className="w-7 h-7 text-[#ff4d6a]" />
               </div>
 
               {/* Content */}
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">
+              <h3 className="text-xl font-bold text-white mb-3 tracking-tight">
                 {feature.title}
               </h3>
-              <p className="text-gray-600 leading-relaxed text-lg">
+              <p className="text-neutral-300 text-sm leading-relaxed">
                 {feature.description}
               </p>
             </div>
           ))}
-        </div>
-
-        {/* Assessment Process Section */}
-        <div className="mt-40" id="Workflow">
-          <div className="text-center max-w-3xl mx-auto mb-24">
-            <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-red-50 border border-red-100 mb-8">
-              <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-              <span className="text-sm font-medium text-gray-900">
-                Assessment Process
-              </span>
-            </div>
-            <h2 className="text-5xl font-bold text-gray-900 mb-6">
-              Streamlined Workflow
-            </h2>
-            <p className="text-xl text-gray-600">
-              From creation to verification, every step optimized for efficiency
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-4 gap-8">
-            {[
-              {
-                step: "01",
-                title: "Create",
-                description: "Define competencies and assessment criteria",
-                icon: FileCheck,
-              },
-              {
-                step: "02",
-                title: "Evaluate",
-                description: "Multi-trial grading with detailed scoring",
-                icon: Users,
-              },
-              {
-                step: "03",
-                title: "Analyze",
-                description: "Real-time performance insights and analytics",
-                icon: BarChart3,
-              },
-              {
-                step: "04",
-                title: "Verify",
-                description: "Quality assurance and comprehensive reporting",
-                icon: Shield,
-              },
-            ].map((step) => (
-              <div key={step.step} className="relative group">
-                <div className="relative p-8 rounded-2xl bg-white/60 backdrop-blur-sm border border-gray-200 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300">
-                  <div className="text-6xl font-bold text-primary/10 mb-6">
-                    {step.step}
-                  </div>
-                  <step.icon className="w-10 h-10 text-primary mb-6" />
-                  <h3 className="text-xl font-bold text-gray-900 mb-3">
-                    {step.title}
-                  </h3>
-                  <p className="text-gray-600 leading-relaxed">
-                    {step.description}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
       </div>
     </section>

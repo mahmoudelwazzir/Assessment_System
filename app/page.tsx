@@ -9,10 +9,12 @@ import { CTA } from "@/components/landing/cta";
 
 export default function Home() {
   return (
-    <main className="relative bg-white">
+    <main className="relative bg-[#080809] text-white min-h-screen overflow-x-hidden">
       <Navigation />
       <Hero />
       <Features />
+      <Workflow />
+      <Stats />
       <CTA />
     </main>
   );

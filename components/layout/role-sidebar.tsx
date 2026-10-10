@@ -74,7 +74,7 @@ export function RoleSidebar({ isOpen = true, onClose }: RoleSidebarProps) {
 
   const handleLogout = () => {
     logout();
-    router.push("/landing");
+    router.push("/");
   };
 
   const handleNavClick = (href: string) => {

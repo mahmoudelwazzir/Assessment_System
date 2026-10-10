@@ -17,21 +17,25 @@ import {
   Info,
   HelpCircle,
   Sparkles,
+  User,
+  Phone,
+  CreditCard,
+  UserCheck,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/hooks/use-toast";
-import { ThemeToggle } from "@/components/theme-toggle";
+import { authApi } from "@/lib/api-client";
 
-// Quick Preset Accounts matching database
+// Quick Preset Accounts matching remote database
 const DEMO_ROLES = [
   {
     id: "control",
     roleName: "Control",
     title: "System Admin / Control",
-    email: "controler@gmail.com",
+    email: "controller@gmail.com",
     password: "123456",
     badge: "Control Panel",
     border: "border-red-500/40",
@@ -63,6 +67,9 @@ const DEMO_ROLES = [
 ];
 
 export default function LoginPage() {
+  const [activeTab, setActiveTab] = useState<"signin" | "signup">("signin");
+
+  // Sign In State
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -70,6 +77,16 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [showHelpModal, setShowHelpModal] = useState(false);
+
+  // Sign Up (Engineer) State
+  const [signupFullNameEn, setSignupFullNameEn] = useState("");
+  const [signupFullNameAr, setSignupFullNameAr] = useState("");
+  const [signupNationalId, setSignupNationalId] = useState("");
+  const [signupEmail, setSignupEmail] = useState("");
+  const [signupPhone, setSignupPhone] = useState("");
+  const [signupPassword, setSignupPassword] = useState("");
+  const [showSignupPassword, setShowSignupPassword] = useState(false);
+  const [isSigningUp, setIsSigningUp] = useState(false);
 
   const router = useRouter();
   const { login } = useAuth();
@@ -81,13 +98,13 @@ export default function LoginPage() {
     setPassword(role.password);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!email || !password) {
       toast({
         title: "Required Fields",
-        description: "Please enter both your email and password.",
+        description: "Please enter both your email/username and password.",
         variant: "destructive",
       });
       return;
@@ -102,7 +119,7 @@ export default function LoginPage() {
         description: "Signed in successfully. Redirecting...",
       });
 
-      // Role-based redirection from storage
+      // Role-based redirection
       const storedUser = localStorage.getItem("user");
       if (storedUser) {
         const user = JSON.parse(storedUser);
@@ -136,18 +153,78 @@ export default function LoginPage() {
     }
   };
 
+  const handleSignupSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (
+      !signupFullNameEn.trim() ||
+      !signupFullNameAr.trim() ||
+      !signupNationalId.trim() ||
+      !signupEmail.trim() ||
+      !signupPassword
+    ) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in all required registration fields.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (signupNationalId.trim().length < 10) {
+      toast({
+        title: "Invalid National ID",
+        description: "National ID must be at least 10 digits.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSigningUp(true);
+    try {
+      await authApi.signupEngineer({
+        fullNameEn: signupFullNameEn.trim(),
+        fullNameAr: signupFullNameAr.trim(),
+        nationalId: signupNationalId.trim(),
+        email: signupEmail.trim(),
+        phone: signupPhone.trim() || undefined,
+        password: signupPassword,
+      });
+
+      toast({
+        title: "Account Created Successfully",
+        description: "Your engineer profile has been registered. You can now sign in.",
+      });
+
+      // Populate sign-in inputs and switch to sign-in tab
+      setEmail(signupEmail.trim());
+      setPassword(signupPassword);
+      setActiveTab("signin");
+    } catch (error) {
+      toast({
+        title: "Registration Failed",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Could not create account. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSigningUp(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#080809] text-[#f2f2f7] flex flex-col font-sans selection:bg-[#c8102e]/30 selection:text-white relative">
-      {/* Main Dual-Panel Split Screen */}
+      {/* Dual-Panel Split Screen */}
       <div className="flex-1 grid lg:grid-cols-12 min-h-screen">
         {/* ========================================================================= */}
-        {/* LEFT PANEL: ELSEWEDY BRAND SHOWCASE (SOLID, OPAQUE, SHARP)               */}
+        {/* LEFT PANEL: ELSEWEDY BRAND SHOWCASE                                       */}
         {/* ========================================================================= */}
-        <div className="hidden lg:flex lg:col-span-5 xl:col-span-6 bg-[#0a0a0e] border-r border-white/10 flex-col justify-between p-10 xl:p-14 relative overflow-hidden">
-          {/* Subtle Accent Glows */}
-          <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-[#c8102e]/20 blur-[120px] pointer-events-none" />
+        <div className="hidden lg:flex lg:col-span-5 xl:col-span-5 bg-[#0a0a0e] border-r border-white/10 flex-col justify-between p-10 xl:p-14 relative overflow-hidden">
+          {/* Subtle Ambient Red Glow */}
+          <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-[#c8102e]/20 blur-[130px] pointer-events-none" />
           <div className="absolute bottom-0 right-0 w-80 h-80 rounded-full bg-[#e8192f]/10 blur-[120px] pointer-events-none" />
-          <div className="absolute inset-0 elsewedy-grid opacity-25 pointer-events-none" />
 
           {/* Top Brand Identity */}
           <div className="relative z-10">
@@ -167,18 +244,18 @@ export default function LoginPage() {
             <div className="mt-6 flex items-center gap-2">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase bg-[#c8102e]/20 text-[#ff4d6a] border border-[#c8102e]/40 shadow-sm">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#ff4d6a] animate-pulse" />
-                Centralized Access System
+                Assessment Platform
               </span>
               <span className="text-[11px] text-neutral-400 font-mono">
-                v2.4 CAS
+                v2.4 Production
               </span>
             </div>
           </div>
 
           {/* Center Showcase Narrative */}
-          <div className="relative z-10 my-auto py-10 max-w-xl">
+          <div className="relative z-10 my-auto py-8 max-w-xl">
             <h1 className="text-3xl xl:text-4xl font-extrabold tracking-tight text-white leading-tight">
-              Next-Gen Assessment &{" "}
+              Institutional Assessment &{" "}
               <span className="text-[#e8192f]">
                 Competency Platform
               </span>
@@ -187,7 +264,7 @@ export default function LoginPage() {
             <p className="mt-4 text-sm xl:text-base text-neutral-300 leading-relaxed">
               Unified educational operations for Elsewedy Technical Academy.
               Standardized rubric evaluation, multi-tier grading integrity, and
-              instant credential tracking across all technical disciplines.
+              instant credential tracking across technical disciplines.
             </p>
 
             {/* Feature Highlights Grid */}
@@ -215,7 +292,7 @@ export default function LoginPage() {
                     Multi-Tier Verification QA
                   </h4>
                   <p className="text-xs text-neutral-300 mt-0.5">
-                    Comprehensive checks and balances with internal verifier approvals.
+                    Independent internal verifier auditing and cycle sign-offs.
                   </p>
                 </div>
               </div>
@@ -240,16 +317,16 @@ export default function LoginPage() {
           <div className="relative z-10 pt-6 border-t border-white/10 flex items-center justify-between text-xs text-neutral-400">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>All Assessment Services Operational</span>
+              <span>Database Connected • MonsterASP SQL</span>
             </div>
             <span>© 2026 Elsewedy Electric</span>
           </div>
         </div>
 
         {/* ========================================================================= */}
-        {/* RIGHT PANEL: INTERACTIVE SIGN-IN WORKSPACE                                */}
+        {/* RIGHT PANEL: INTERACTIVE SIGN-IN & REGISTRATION WORKSPACE                 */}
         {/* ========================================================================= */}
-        <div className="lg:col-span-7 xl:col-span-6 bg-[#0e0e13] flex flex-col justify-between p-6 sm:p-10 lg:p-12 xl:p-14 relative overflow-y-auto">
+        <div className="lg:col-span-7 xl:col-span-7 bg-[#0e0e13] flex flex-col justify-between p-6 sm:p-10 lg:p-12 xl:p-14 relative overflow-y-auto">
           {/* Top Bar: Navigation & Tools */}
           <div className="relative z-10 flex items-center justify-between w-full">
             <Link
@@ -265,18 +342,16 @@ export default function LoginPage() {
                 type="button"
                 onClick={() => setShowHelpModal(true)}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 text-xs font-semibold text-neutral-200 hover:text-white transition-colors cursor-pointer"
-                title="View Demo Credentials"
+                title="View Verified Accounts"
               >
                 <HelpCircle className="w-3.5 h-3.5 text-[#ff4d6a]" />
-                <span className="hidden sm:inline">Accounts Guide</span>
+                <span className="hidden sm:inline">Active Accounts</span>
               </button>
-
-              <ThemeToggle />
             </div>
           </div>
 
-          {/* Center Form Box */}
-          <div className="relative z-10 w-full max-w-md mx-auto my-auto py-8">
+          {/* Center Form Container */}
+          <div className="relative z-10 w-full max-w-md mx-auto my-auto py-6">
             {/* Mobile Logo */}
             <div className="lg:hidden flex justify-center mb-6">
               <Image
@@ -288,179 +363,377 @@ export default function LoginPage() {
               />
             </div>
 
-            {/* Header Titles */}
-            <div className="text-left">
-              <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
-                Sign In
-              </h2>
-              <p className="mt-1.5 text-sm text-neutral-300">
-                Sign in to your Elsewedy account to access the assessment portal.
-              </p>
-            </div>
-
-            {/* Quick-Fill Role Selector */}
-            <div className="mt-6 p-4 rounded-2xl bg-white/[0.04] border border-white/10">
-              <div className="flex items-center justify-between mb-3 px-1">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-neutral-300 flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-[#ff4d6a]" />
-                  Quick Fill by Role
-                </span>
-                <span className="text-[11px] text-neutral-400">
-                  Click to fill credentials
-                </span>
-              </div>
-
-              <div className="grid grid-cols-3 gap-2.5">
-                {DEMO_ROLES.map((role) => {
-                  const isSelected = selectedRole === role.id;
-                  return (
-                    <button
-                      key={role.id}
-                      type="button"
-                      onClick={() => handleSelectRole(role)}
-                      className={`relative flex flex-col items-center justify-center p-3 rounded-xl text-center border transition-all duration-150 cursor-pointer ${
-                        isSelected
-                          ? "bg-[#c8102e]/25 border-[#c8102e] shadow-[0_0_16px_rgba(200,16,46,0.35)] text-white"
-                          : "bg-white/[0.04] border-white/15 hover:border-white/30 text-neutral-200 hover:text-white hover:bg-white/[0.08]"
-                      }`}
-                    >
-                      <span className="text-xs font-bold">{role.roleName}</span>
-                      <span className="text-[10px] text-neutral-400 font-mono mt-0.5">
-                        {role.id === "control"
-                          ? "Admin"
-                          : role.id === "assessor"
-                            ? "Assessor"
-                            : "Verifier"}
-                      </span>
-                      {isSelected && (
-                        <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-[#e8192f] shadow-[0_0_8px_#e8192f]" />
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-
-              {selectedRole && (
-                <div className="mt-3 pt-3 border-t border-white/10 text-xs text-neutral-300 flex items-center gap-2 px-1">
-                  <Info className="w-4 h-4 text-[#ff4d6a] shrink-0" />
-                  <span>
-                    {
-                      DEMO_ROLES.find((r) => r.id === selectedRole)
-                        ?.description
-                    }
-                  </span>
-                </div>
-              )}
-            </div>
-
-            {/* Login Form */}
-            <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-              {/* Email Address */}
-              <div className="space-y-1.5">
-                <label
-                  htmlFor="email"
-                  className="block text-xs font-semibold uppercase tracking-wider text-neutral-300"
-                >
-                  Email Address or Username
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-400">
-                    <Mail className="h-4 w-4" />
-                  </div>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="name@elsewedy.com"
-                    value={email}
-                    onChange={(e) => {
-                      setEmail(e.target.value);
-                      setSelectedRole(null);
-                    }}
-                    disabled={isLoading}
-                    className="h-12 pl-10 bg-[#16161d] border-white/15 hover:border-white/25 focus:border-[#c8102e] focus:ring-2 focus:ring-[#c8102e]/25 text-white placeholder:text-neutral-500 rounded-xl text-sm transition-all"
-                  />
-                </div>
-              </div>
-
-              {/* Password */}
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <label
-                    htmlFor="password"
-                    className="block text-xs font-semibold uppercase tracking-wider text-neutral-300"
-                  >
-                    Password
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => setShowHelpModal(true)}
-                    className="text-xs text-[#ff4d6a] hover:underline cursor-pointer"
-                  >
-                    Need credentials?
-                  </button>
-                </div>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-400">
-                    <Lock className="h-4 w-4" />
-                  </div>
-                  <Input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => {
-                      setPassword(e.target.value);
-                      setSelectedRole(null);
-                    }}
-                    disabled={isLoading}
-                    className="h-12 pl-10 pr-10 bg-[#16161d] border-white/15 hover:border-white/25 focus:border-[#c8102e] focus:ring-2 focus:ring-[#c8102e]/25 text-white placeholder:text-neutral-500 rounded-xl text-sm transition-all"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-neutral-400 hover:text-white transition-colors cursor-pointer"
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              {/* Remember Me Checkbox */}
-              <div className="flex items-center pt-1">
-                <label className="flex items-center gap-2.5 cursor-pointer text-xs text-neutral-300 select-none">
-                  <input
-                    type="checkbox"
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                    className="w-4 h-4 rounded border-white/20 bg-[#16161d] text-[#c8102e] focus:ring-[#c8102e] transition-colors"
-                  />
-                  <span>Remember this device for 30 days</span>
-                </label>
-              </div>
-
-              {/* Submit Button */}
-              <Button
-                type="submit"
-                disabled={isLoading}
-                className="w-full h-12 mt-2 bg-gradient-to-r from-[#c8102e] via-[#e8192f] to-[#a00d25] hover:opacity-95 text-white font-bold rounded-xl text-sm shadow-[0_8px_24px_rgba(200,16,46,0.38)] hover:shadow-[0_12px_28px_rgba(200,16,46,0.52)] active:scale-[0.99] transition-all flex items-center justify-center gap-2 group cursor-pointer"
+            {/* Tab Switcher: Sign In vs Sign Up */}
+            <div className="flex p-1 mb-6 rounded-2xl bg-[#16161f] border border-white/10">
+              <button
+                type="button"
+                onClick={() => setActiveTab("signin")}
+                className={`flex-1 py-2.5 text-xs font-bold rounded-xl transition-all cursor-pointer ${
+                  activeTab === "signin"
+                    ? "bg-[#c8102e] text-white shadow-md shadow-red-900/30"
+                    : "text-neutral-400 hover:text-white"
+                }`}
               >
-                {isLoading ? (
-                  <>
-                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    <span>Signing in to CAS...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>Sign In</span>
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </>
-                )}
-              </Button>
-            </form>
+                Sign In
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("signup")}
+                className={`flex-1 py-2.5 text-xs font-bold rounded-xl transition-all cursor-pointer ${
+                  activeTab === "signup"
+                    ? "bg-[#c8102e] text-white shadow-md shadow-red-900/30"
+                    : "text-neutral-400 hover:text-white"
+                }`}
+              >
+                Register Engineer
+              </button>
+            </div>
+
+            {/* TAB 1: SIGN IN */}
+            {activeTab === "signin" && (
+              <div>
+                <div className="text-left">
+                  <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
+                    Sign In
+                  </h2>
+                  <p className="mt-1.5 text-sm text-neutral-300">
+                    Access your Elsewedy portal with your authorized role.
+                  </p>
+                </div>
+
+                {/* Quick-Fill Role Selector */}
+                <div className="mt-5 p-4 rounded-2xl bg-white/[0.04] border border-white/10">
+                  <div className="flex items-center justify-between mb-3 px-1">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-neutral-300 flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-[#ff4d6a]" />
+                      Quick Fill by Role
+                    </span>
+                    <span className="text-[11px] text-neutral-400">
+                      Click to auto-fill
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2.5">
+                    {DEMO_ROLES.map((role) => {
+                      const isSelected = selectedRole === role.id;
+                      return (
+                        <button
+                          key={role.id}
+                          type="button"
+                          onClick={() => handleSelectRole(role)}
+                          className={`relative flex flex-col items-center justify-center p-3 rounded-xl text-center border transition-all duration-150 cursor-pointer ${
+                            isSelected
+                              ? "bg-[#c8102e]/25 border-[#c8102e] shadow-[0_0_16px_rgba(200,16,46,0.35)] text-white"
+                              : "bg-white/[0.04] border-white/15 hover:border-white/30 text-neutral-200 hover:text-white hover:bg-white/[0.08]"
+                          }`}
+                        >
+                          <span className="text-xs font-bold">{role.roleName}</span>
+                          <span className="text-[10px] text-neutral-400 font-mono mt-0.5">
+                            {role.id === "control"
+                              ? "Admin"
+                              : role.id === "assessor"
+                                ? "Assessor"
+                                : "Verifier"}
+                          </span>
+                          {isSelected && (
+                            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-[#e8192f] shadow-[0_0_8px_#e8192f]" />
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {selectedRole && (
+                    <div className="mt-3 pt-3 border-t border-white/10 text-xs text-neutral-300 flex items-center gap-2 px-1">
+                      <Info className="w-4 h-4 text-[#ff4d6a] shrink-0" />
+                      <span>
+                        {
+                          DEMO_ROLES.find((r) => r.id === selectedRole)
+                            ?.description
+                        }
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Login Form */}
+                <form onSubmit={handleLoginSubmit} className="mt-5 space-y-4">
+                  {/* Email / Username / National ID */}
+                  <div className="space-y-1.5">
+                    <label
+                      htmlFor="email"
+                      className="block text-xs font-semibold uppercase tracking-wider text-neutral-300"
+                    >
+                      Email, Username or National ID
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-400">
+                        <Mail className="h-4 w-4" />
+                      </div>
+                      <Input
+                        id="email"
+                        type="text"
+                        placeholder="controller@gmail.com"
+                        value={email}
+                        onChange={(e) => {
+                          setEmail(e.target.value);
+                          setSelectedRole(null);
+                        }}
+                        disabled={isLoading}
+                        className="h-12 pl-10 bg-[#16161d] border-white/15 hover:border-white/25 focus:border-[#c8102e] focus:ring-2 focus:ring-[#c8102e]/25 text-white placeholder:text-neutral-500 rounded-xl text-sm transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Password */}
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <label
+                        htmlFor="password"
+                        className="block text-xs font-semibold uppercase tracking-wider text-neutral-300"
+                      >
+                        Password
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => setShowHelpModal(true)}
+                        className="text-xs text-[#ff4d6a] hover:underline cursor-pointer"
+                      >
+                        View Active Passwords
+                      </button>
+                    </div>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-400">
+                        <Lock className="h-4 w-4" />
+                      </div>
+                      <Input
+                        id="password"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="••••••••"
+                        value={password}
+                        onChange={(e) => {
+                          setPassword(e.target.value);
+                          setSelectedRole(null);
+                        }}
+                        disabled={isLoading}
+                        className="h-12 pl-10 pr-10 bg-[#16161d] border-white/15 hover:border-white/25 focus:border-[#c8102e] focus:ring-2 focus:ring-[#c8102e]/25 text-white placeholder:text-neutral-500 rounded-xl text-sm transition-all"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-neutral-400 hover:text-white transition-colors cursor-pointer"
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Remember Me */}
+                  <div className="flex items-center pt-1">
+                    <label className="flex items-center gap-2.5 cursor-pointer text-xs text-neutral-300 select-none">
+                      <input
+                        type="checkbox"
+                        checked={rememberMe}
+                        onChange={(e) => setRememberMe(e.target.checked)}
+                        className="w-4 h-4 rounded border-white/20 bg-[#16161d] text-[#c8102e] focus:ring-[#c8102e] transition-colors"
+                      />
+                      <span>Keep me signed in on this workstation</span>
+                    </label>
+                  </div>
+
+                  {/* Submit Button */}
+                  <Button
+                    type="submit"
+                    disabled={isLoading}
+                    className="w-full h-12 mt-2 bg-gradient-to-r from-[#c8102e] via-[#e8192f] to-[#a00d25] hover:opacity-95 text-white font-bold rounded-xl text-sm shadow-[0_8px_24px_rgba(200,16,46,0.38)] hover:shadow-[0_12px_28px_rgba(200,16,46,0.52)] active:scale-[0.99] transition-all flex items-center justify-center gap-2 group cursor-pointer"
+                  >
+                    {isLoading ? (
+                      <>
+                        <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <span>Verifying Credentials...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Sign In</span>
+                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                      </>
+                    )}
+                  </Button>
+                </form>
+              </div>
+            )}
+
+            {/* TAB 2: REGISTER ENGINEER */}
+            {activeTab === "signup" && (
+              <div>
+                <div className="text-left">
+                  <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
+                    Register Engineer
+                  </h2>
+                  <p className="mt-1.5 text-sm text-neutral-300">
+                    Create an engineer profile. Control will designate your Assessor or Verifier duties.
+                  </p>
+                </div>
+
+                <form onSubmit={handleSignupSubmit} className="mt-5 space-y-3.5">
+                  {/* Full Name English */}
+                  <div className="space-y-1">
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-300">
+                      Full Name (English) *
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-400">
+                        <User className="h-4 w-4" />
+                      </div>
+                      <Input
+                        type="text"
+                        placeholder="e.g. Tarek Mahmoud"
+                        value={signupFullNameEn}
+                        onChange={(e) => setSignupFullNameEn(e.target.value)}
+                        disabled={isSigningUp}
+                        className="h-11 pl-10 bg-[#16161d] border-white/15 focus:border-[#c8102e] text-white placeholder:text-neutral-500 rounded-xl text-sm"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Full Name Arabic */}
+                  <div className="space-y-1">
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-300">
+                      Full Name (Arabic) *
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-400">
+                        <UserCheck className="h-4 w-4" />
+                      </div>
+                      <Input
+                        type="text"
+                        placeholder="مثال: طارق محمود"
+                        dir="rtl"
+                        value={signupFullNameAr}
+                        onChange={(e) => setSignupFullNameAr(e.target.value)}
+                        disabled={isSigningUp}
+                        className="h-11 pl-10 pr-3.5 bg-[#16161d] border-white/15 focus:border-[#c8102e] text-white placeholder:text-neutral-500 rounded-xl text-sm"
+                      />
+                    </div>
+                  </div>
+
+                  {/* National ID */}
+                  <div className="space-y-1">
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-300">
+                      National ID (14 Digits) *
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-400">
+                        <CreditCard className="h-4 w-4" />
+                      </div>
+                      <Input
+                        type="text"
+                        placeholder="29901011234567"
+                        value={signupNationalId}
+                        onChange={(e) => setSignupNationalId(e.target.value)}
+                        disabled={isSigningUp}
+                        className="h-11 pl-10 bg-[#16161d] border-white/15 focus:border-[#c8102e] text-white placeholder:text-neutral-500 rounded-xl text-sm font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Email & Phone Grid */}
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-300">
+                        Email Address *
+                      </label>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-400">
+                          <Mail className="h-4 w-4" />
+                        </div>
+                        <Input
+                          type="email"
+                          placeholder="eng.name@elsewedy.com"
+                          value={signupEmail}
+                          onChange={(e) => setSignupEmail(e.target.value)}
+                          disabled={isSigningUp}
+                          className="h-11 pl-10 bg-[#16161d] border-white/15 focus:border-[#c8102e] text-white placeholder:text-neutral-500 rounded-xl text-sm"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-300">
+                        Phone Number
+                      </label>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-400">
+                          <Phone className="h-4 w-4" />
+                        </div>
+                        <Input
+                          type="tel"
+                          placeholder="010XXXXXXXX"
+                          value={signupPhone}
+                          onChange={(e) => setSignupPhone(e.target.value)}
+                          disabled={isSigningUp}
+                          className="h-11 pl-10 bg-[#16161d] border-white/15 focus:border-[#c8102e] text-white placeholder:text-neutral-500 rounded-xl text-sm font-mono"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Password */}
+                  <div className="space-y-1">
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-300">
+                      Create Password *
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-400">
+                        <Lock className="h-4 w-4" />
+                      </div>
+                      <Input
+                        type={showSignupPassword ? "text" : "password"}
+                        placeholder="At least 6 characters"
+                        value={signupPassword}
+                        onChange={(e) => setSignupPassword(e.target.value)}
+                        disabled={isSigningUp}
+                        className="h-11 pl-10 pr-10 bg-[#16161d] border-white/15 focus:border-[#c8102e] text-white placeholder:text-neutral-500 rounded-xl text-sm"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowSignupPassword(!showSignupPassword)}
+                        className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-neutral-400 hover:text-white transition-colors cursor-pointer"
+                      >
+                        {showSignupPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Register Submit Button */}
+                  <Button
+                    type="submit"
+                    disabled={isSigningUp}
+                    className="w-full h-12 mt-3 bg-gradient-to-r from-[#c8102e] via-[#e8192f] to-[#a00d25] hover:opacity-95 text-white font-bold rounded-xl text-sm shadow-[0_8px_24px_rgba(200,16,46,0.38)] active:scale-[0.99] transition-all flex items-center justify-center gap-2 group cursor-pointer"
+                  >
+                    {isSigningUp ? (
+                      <>
+                        <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <span>Registering Profile...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Complete Registration</span>
+                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                      </>
+                    )}
+                  </Button>
+                </form>
+              </div>
+            )}
 
             {/* Bottom Security Badge */}
             <div className="mt-8 pt-6 border-t border-white/10 flex items-center justify-center gap-2 text-xs text-neutral-400">
@@ -492,9 +765,9 @@ export default function LoginPage() {
                   <ShieldCheck className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-base">Verified Test Accounts</h3>
+                  <h3 className="font-bold text-base">Verified Active Accounts</h3>
                   <p className="text-xs text-neutral-300">
-                    Configured in database with password: <code className="text-white font-mono bg-white/15 px-1.5 py-0.5 rounded">123456</code>
+                    Configured in remote database with password: <code className="text-white font-mono bg-white/15 px-1.5 py-0.5 rounded">123456</code>
                   </p>
                 </div>
               </div>
@@ -532,20 +805,22 @@ export default function LoginPage() {
                     size="sm"
                     onClick={() => {
                       handleSelectRole(role);
+                      setActiveTab("signin");
                       setShowHelpModal(false);
                     }}
                     className="bg-white/10 hover:bg-[#c8102e] text-white text-xs h-8 px-3 rounded-lg cursor-pointer"
                   >
-                    Select
+                    Use
                   </Button>
                 </div>
               ))}
             </div>
 
-            <div className="mt-5 pt-4 border-t border-white/10 flex justify-end">
+            <div className="mt-5 pt-4 border-t border-white/10 flex justify-between items-center text-xs text-neutral-400">
+              <span>Password for all accounts: <strong>123456</strong></span>
               <Button
                 onClick={() => setShowHelpModal(false)}
-                className="bg-neutral-800 hover:bg-neutral-700 text-white text-xs h-9 px-4 rounded-xl cursor-pointer"
+                className="bg-neutral-800 hover:bg-neutral-700 text-white text-xs h-8 px-4 rounded-xl cursor-pointer"
               >
                 Close
               </Button>

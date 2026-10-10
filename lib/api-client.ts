@@ -230,13 +230,13 @@ export const authApi = {
   },
 
   /**
-   * Signup as Verifier
-   * POST /api/auth/signup/verifier
+   * Signup as Engineer (awaiting role assignment)
+   * POST /api/auth/signup/engineer
    */
-  signupVerifier: async (
+  signupEngineer: async (
     data: Omit<SignupRequest, "role">,
   ): Promise<LoginResponse> => {
-    return apiRequest<LoginResponse>("/auth/signup/verifier", {
+    return apiRequest<LoginResponse>("/auth/signup/engineer", {
       method: "POST",
       body: JSON.stringify(data),
     });
