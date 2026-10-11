@@ -28,7 +28,6 @@ import {
   ChevronRight,
   Filter,
   Check,
-  Star,
   FileText,
   BadgeCheck,
   MapPin,
@@ -38,7 +37,27 @@ import {
   ArrowUpRight,
   Info,
   ChevronDown,
+  BarChart3,
+  Activity,
+  Target,
+  FileCheck,
 } from "lucide-react";
+
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  Cell,
+  RadarChart,
+  Radar,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+} from "recharts";
 
 import { useAuth } from "@/lib/auth-context";
 import { useStudents } from "@/hooks/use-api";
@@ -70,7 +89,6 @@ export default function StudentDashboardPage() {
     if (apiStudents && apiStudents.length > 0) {
       return apiStudents;
     }
-    // Fallback if API hasn't loaded or offline
     return [
       { id: 10, fullNameEn: "Abd alhadi eabd alhamaid", fullNameAr: "عبد الهادي عبد الحميد", email: "hadym2429@gmail.com", nationalId: "29901011999991", phone: "01012345678" },
       { id: 4, fullNameEn: "Ibrahim Adel", fullNameAr: "إبراهيم عادل", email: "ibrahim.adel1@school.com", nationalId: "30501011234564", phone: "01000000004" },
@@ -97,13 +115,13 @@ export default function StudentDashboardPage() {
   const [isSelectorOpen, setIsSelectorOpen] = useState(false);
 
   // Competency filter and selected tab
-  const [activeTab, setActiveTab] = useState<"competencies" | "schedule" | "transcript" | "profile">("competencies");
+  const [activeTab, setActiveTab] = useState<"overview" | "competencies" | "schedule" | "transcript" | "profile">("overview");
   const [competencyStatusFilter, setCompetencyStatusFilter] = useState<"ALL" | "PASSED" | "IN_PROGRESS" | "UPCOMING">("ALL");
 
   // Selected competency for inspection modal
   const [inspectedCompetency, setInspectedCompetency] = useState<StudentCompetencyDetail | null>(null);
 
-  // Sync with logged-in user if their email or accountId matches one of the students
+  // Sync with logged-in user if their email or accountId matches
   useEffect(() => {
     if (user?.email) {
       const match = availableStudents.find(
@@ -141,6 +159,29 @@ export default function StudentDashboardPage() {
     return activeDossier.competencies.filter((c) => c.status === "Upcoming");
   }, [activeDossier]);
 
+  // Chart dataset: Competency performance vs threshold
+  const chartPerformanceData = useMemo(() => {
+    return activeDossier.competencies
+      .filter((c) => c.score !== undefined)
+      .map((c) => ({
+        code: c.code.replace("COMP-", ""),
+        name: c.nameEn,
+        score: c.score || 0,
+        passingThreshold: 75,
+      }));
+  }, [activeDossier]);
+
+  // Radar dataset: 4 Core Competency Pillars
+  const radarData = useMemo(() => {
+    return [
+      { pillar: "Practical Coding", score: 96, fullMark: 100 },
+      { pillar: "Architecture & Design", score: 92, fullMark: 100 },
+      { pillar: "Industrial Safety (IEC)", score: 98, fullMark: 100 },
+      { pillar: "Documentation & Portfolio", score: 91, fullMark: 100 },
+      { pillar: "Teamwork & Agile", score: 95, fullMark: 100 },
+    ];
+  }, []);
+
   // Search filtered student selector list
   const filteredStudentsList = useMemo(() => {
     if (!studentSearchQuery.trim()) return availableStudents;
@@ -148,7 +189,6 @@ export default function StudentDashboardPage() {
     return availableStudents.filter(
       (s) =>
         s.fullNameEn?.toLowerCase().includes(q) ||
-        s.fullNameAr?.toLowerCase().includes(q) ||
         s.email?.toLowerCase().includes(q) ||
         s.nationalId?.includes(q) ||
         s.id.toString() === q
@@ -168,13 +208,13 @@ export default function StudentDashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/60 dark:bg-[#0b0c10] text-slate-900 dark:text-neutral-100 transition-colors duration-300 font-sans pb-16">
+    <div className="min-h-screen bg-slate-50/70 dark:bg-[#0b0c10] text-slate-900 dark:text-neutral-100 transition-colors duration-300 font-sans pb-16">
       {/* ============================================================== */}
-      {/* TOP ACADEMY HEADER & STUDENT SWITCHER BAR                       */}
+      {/* TOP NAVIGATION & CANDIDATE SELECTOR BAR                        */}
       {/* ============================================================== */}
-      <header className="sticky top-0 z-40 bg-white/85 dark:bg-[#0f1015]/85 backdrop-blur-md border-b border-slate-200/80 dark:border-white/10 px-4 sm:px-8 py-3.5 shadow-sm">
+      <header className="sticky top-0 z-40 bg-white/90 dark:bg-[#0f1015]/90 backdrop-blur-md border-b border-slate-200/80 dark:border-white/10 px-4 sm:px-8 py-3.5 shadow-sm">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-3">
-          {/* Brand & Portal Title */}
+          {/* Brand & Portal Label */}
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-[#c8102e] flex items-center justify-center text-white font-black text-xl shadow-md shadow-[#c8102e]/20">
               S
@@ -185,18 +225,18 @@ export default function StudentDashboardPage() {
                   ELSEWEDY
                 </span>
                 <span className="text-xs px-2 py-0.5 rounded-md font-semibold bg-[#c8102e]/10 text-[#c8102e] border border-[#c8102e]/20">
-                  Student Dossier
+                  Student Portal
                 </span>
               </div>
               <p className="text-[11px] text-slate-500 dark:text-neutral-400 font-medium">
-                Elsewedy Technical Academy (STA) • National Competency Assessment System
+                Elsewedy Technical Academy (STA) • Competency Assessment Dashboard
               </p>
             </div>
           </div>
 
-          {/* Student Selector & Global Quick Actions */}
+          {/* Quick Actions & Candidate Selector */}
           <div className="flex items-center gap-2.5 flex-wrap">
-            {/* Student Directory Switcher Dropdown */}
+            {/* Student Directory Switcher */}
             <div className="relative">
               <button
                 onClick={() => setIsSelectorOpen(!isSelectorOpen)}
@@ -213,7 +253,7 @@ export default function StudentDashboardPage() {
                 <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
               </button>
 
-              {/* Dropdown Menu to view ANY student */}
+              {/* Dropdown Menu */}
               <AnimatePresence>
                 {isSelectorOpen && (
                   <motion.div
@@ -226,10 +266,10 @@ export default function StudentDashboardPage() {
                     <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-100 dark:border-white/10">
                       <span className="text-xs font-bold text-slate-700 dark:text-neutral-300 flex items-center gap-1.5">
                         <User className="w-3.5 h-3.5 text-[#c8102e]" />
-                        Select Candidate to Inspect
+                        Select Candidate Profile
                       </span>
                       <span className="text-[10px] text-slate-400">
-                        {availableStudents.length} Students in Cohort
+                        {availableStudents.length} Registered Students
                       </span>
                     </div>
 
@@ -237,7 +277,7 @@ export default function StudentDashboardPage() {
                       <Search className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400" />
                       <input
                         type="text"
-                        placeholder="Search student by name, national ID..."
+                        placeholder="Search by name, national ID..."
                         value={studentSearchQuery}
                         onChange={(e) => setStudentSearchQuery(e.target.value)}
                         className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg bg-slate-50 dark:bg-black/30 border border-slate-200 dark:border-white/10 text-slate-800 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-[#c8102e]"
@@ -273,7 +313,7 @@ export default function StudentDashboardPage() {
                               <div className="truncate">
                                 <div className="truncate font-semibold">{st.fullNameEn}</div>
                                 <div className="text-[10px] text-slate-400 truncate font-normal">
-                                  {st.fullNameAr} • ID: {st.id}
+                                  ID: {st.id} • {st.email}
                                 </div>
                               </div>
                             </div>
@@ -295,13 +335,13 @@ export default function StudentDashboardPage() {
               className="h-8 text-xs font-semibold gap-1.5 rounded-xl border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/10"
             >
               <Printer className="w-3.5 h-3.5 text-slate-600 dark:text-neutral-300" />
-              <span className="hidden sm:inline">Print Dossier</span>
+              <span className="hidden sm:inline">Print Report</span>
             </Button>
 
             {/* Dark / Light Mode Switcher */}
             <ThemeToggle />
 
-            {/* Sign Out */}
+            {/* Logout */}
             <Button
               variant="ghost"
               size="sm"
@@ -319,7 +359,7 @@ export default function StudentDashboardPage() {
       </header>
 
       {/* ============================================================== */}
-      {/* HERO CANDIDATE PROFILE & IDENTITY BANNER                         */}
+      {/* CANDIDATE PROFILE HERO HEADER (Leader Badge Removed)           */}
       {/* ============================================================== */}
       <main className="max-w-7xl mx-auto px-4 sm:px-8 pt-6 space-y-6">
         <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-slate-900 via-[#161722] to-[#250d12] text-white p-6 sm:p-8 shadow-2xl border border-slate-800/80">
@@ -328,20 +368,14 @@ export default function StudentDashboardPage() {
           <div className="absolute -bottom-24 left-1/3 w-80 h-80 rounded-full bg-[#e8192f]/15 blur-[100px] pointer-events-none" />
 
           <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
-            {/* Left: Avatar & Identity Details */}
+            {/* Left: Avatar & Candidate Info */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
               <div className="relative">
+                {/* Clean Avatar without Leader Badge */}
                 <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-tr from-[#c8102e] to-[#ff4d6a] text-white font-black text-3xl flex items-center justify-center shadow-xl border-2 border-white/20">
                   {initials}
                 </div>
-                {activeDossier.isLeader && (
-                  <div
-                    title="Class Leader"
-                    className="absolute -bottom-2 -right-2 px-2 py-0.5 rounded-full bg-amber-400 text-slate-900 text-[10px] font-extrabold flex items-center gap-1 shadow-md border-2 border-slate-900"
-                  >
-                    <Star className="w-3 h-3 fill-slate-900" /> Leader
-                  </div>
-                )}
+                <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-500 border-2 border-slate-900" title="Active Candidate" />
               </div>
 
               <div className="space-y-1.5">
@@ -349,8 +383,8 @@ export default function StudentDashboardPage() {
                   <h1 className="text-xl sm:text-2xl font-black tracking-tight text-white">
                     {activeDossier.fullNameEn}
                   </h1>
-                  <span className="text-sm font-bold text-slate-300/80 px-2.5 py-0.5 rounded-lg bg-white/10 border border-white/10 font-mono">
-                    {activeDossier.fullNameAr}
+                  <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-semibold border border-emerald-500/30">
+                    Active Student
                   </span>
                 </div>
 
@@ -359,7 +393,7 @@ export default function StudentDashboardPage() {
                     <GraduationCap className="w-3.5 h-3.5" /> {activeDossier.code}
                   </span>
                   <span>•</span>
-                  <span className="flex items-center gap-1 text-slate-400">
+                  <span className="flex items-center gap-1 text-slate-300">
                     <User className="w-3.5 h-3.5" /> NID: {activeDossier.nationalId}
                   </span>
                   <span>•</span>
@@ -379,13 +413,13 @@ export default function StudentDashboardPage() {
                   </div>
                   <div className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 flex items-center gap-1.5">
                     <MapPin className="w-3.5 h-3.5 text-blue-400" />
-                    <span>{activeDossier.factoryAr}</span>
+                    <span>{activeDossier.factoryEn}</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Right: Academic Standing & Key Metric Pill */}
+            {/* Right: Academic Performance Highlights */}
             <div className="flex flex-row lg:flex-col items-center lg:items-end justify-between w-full lg:w-auto gap-3 pt-3 lg:pt-0 border-t lg:border-t-0 border-white/10">
               <div className="text-left lg:text-right">
                 <div className="text-[11px] font-bold tracking-wider uppercase text-slate-400">
@@ -398,7 +432,7 @@ export default function StudentDashboardPage() {
                   </span>
                 </div>
                 <p className="text-[11px] text-slate-400">
-                  Evaluation Standing: <span className="text-[#ff4d6a] font-bold">Excellent with Honors</span>
+                  Evaluation Standing: <span className="text-[#ff4d6a] font-bold">Distinction with Honors</span>
                 </p>
               </div>
 
@@ -417,13 +451,13 @@ export default function StudentDashboardPage() {
         </div>
 
         {/* ============================================================== */}
-        {/* KPI METRICS OVERVIEW CARDS                                     */}
+        {/* KPI OVERVIEW CARDS                                             */}
         {/* ============================================================== */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {/* Card 1: Passed Competencies */}
           <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#12131a] border border-slate-200/80 dark:border-white/10 shadow-sm">
             <div className="flex items-center justify-between text-slate-500 dark:text-neutral-400 mb-2">
-              <span className="text-xs font-bold uppercase tracking-wider">الجدارات المجتازة</span>
+              <span className="text-xs font-bold uppercase tracking-wider">Passed Units</span>
               <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
                 <CheckCircle2 className="w-4 h-4" />
               </div>
@@ -431,18 +465,18 @@ export default function StudentDashboardPage() {
             <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
               {activeDossier.completedCompetenciesCount}
               <span className="text-sm font-normal text-slate-400 ml-1">
-                / {activeDossier.competencies.length}
+                / {activeDossier.competencies.length} Units
               </span>
             </div>
             <div className="mt-2 text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
-              <span>مستوفٍ لمعايير الجودة بنجاح</span>
+              <span>Standard Met with Quality Sign-off</span>
             </div>
           </div>
 
-          {/* Card 2: In-Progress Competency */}
+          {/* Card 2: Current Unit in Assessment */}
           <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#12131a] border border-slate-200/80 dark:border-white/10 shadow-sm">
             <div className="flex items-center justify-between text-slate-500 dark:text-neutral-400 mb-2">
-              <span className="text-xs font-bold uppercase tracking-wider">الجدارة الحالية</span>
+              <span className="text-xs font-bold uppercase tracking-wider">Active Unit</span>
               <div className="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
                 <Clock className="w-4 h-4" />
               </div>
@@ -450,18 +484,18 @@ export default function StudentDashboardPage() {
             <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
               {activeDossier.inProgressCompetenciesCount}
               <span className="text-xs font-bold text-amber-600 dark:text-amber-400 ml-2">
-                (قيد التقييم)
+                (In Assessment)
               </span>
             </div>
             <div className="mt-2 text-[11px] text-slate-500 dark:text-neutral-400 truncate">
-              {activeDossier.competencies.find(c => c.status === "In Progress")?.code || "COMP-IOT-305"} • 89% Progress
+              {activeDossier.competencies.find(c => c.status === "In Progress")?.code || "COMP-IOT-305"} • 89% Milestone
             </div>
           </div>
 
           {/* Card 3: Upcoming Exams */}
           <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#12131a] border border-slate-200/80 dark:border-white/10 shadow-sm">
             <div className="flex items-center justify-between text-slate-500 dark:text-neutral-400 mb-2">
-              <span className="text-xs font-bold uppercase tracking-wider">الاختبارات القادمة</span>
+              <span className="text-xs font-bold uppercase tracking-wider">Upcoming Exams</span>
               <div className="w-8 h-8 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center">
                 <Calendar className="w-4 h-4" />
               </div>
@@ -469,18 +503,18 @@ export default function StudentDashboardPage() {
             <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
               {activeDossier.upcomingCompetenciesCount}
               <span className="text-xs font-bold text-blue-600 dark:text-blue-400 ml-2">
-                مجدولة رسمياً
+                Scheduled
               </span>
             </div>
             <div className="mt-2 text-[11px] text-blue-600 dark:text-blue-400 font-semibold">
-              أقرب امتحان: 26 نوفمبر 2026
+              Nearest: Nov 26, 2026
             </div>
           </div>
 
-          {/* Card 4: Factory & Field Attendance */}
+          {/* Card 4: Field & Industrial Attendance */}
           <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#12131a] border border-slate-200/80 dark:border-white/10 shadow-sm">
             <div className="flex items-center justify-between text-slate-500 dark:text-neutral-400 mb-2">
-              <span className="text-xs font-bold uppercase tracking-wider">نسبة الحضور الميداني</span>
+              <span className="text-xs font-bold uppercase tracking-wider">Plant Attendance</span>
               <div className="w-8 h-8 rounded-xl bg-[#c8102e]/10 text-[#c8102e] flex items-center justify-center">
                 <TrendingUp className="w-4 h-4" />
               </div>
@@ -489,16 +523,28 @@ export default function StudentDashboardPage() {
               {activeDossier.attendanceRate}%
             </div>
             <div className="mt-2 text-[11px] text-slate-500 dark:text-neutral-400">
-              السلوك والانضباط الصناعي: <span className="font-bold text-slate-900 dark:text-white">{activeDossier.conductScore}/100</span>
+              Industrial Conduct Score: <span className="font-bold text-slate-900 dark:text-white">{activeDossier.conductScore}/100</span>
             </div>
           </div>
         </div>
 
         {/* ============================================================== */}
-        {/* NAVIGATION TABS (الجدارات / الجدول / السجل الأكاديمي / الملف الشخصي) */}
+        {/* DASHBOARD TAB NAVIGATION BAR                                   */}
         {/* ============================================================== */}
         <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-1 overflow-x-auto gap-2">
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => setActiveTab("overview")}
+              className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 whitespace-nowrap ${
+                activeTab === "overview"
+                  ? "bg-[#c8102e] text-white shadow-md shadow-[#c8102e]/20"
+                  : "text-slate-600 dark:text-neutral-300 hover:bg-slate-100 dark:hover:bg-white/5"
+              }`}
+            >
+              <BarChart3 className="w-4 h-4" />
+              <span>Dashboard Analytics</span>
+            </button>
+
             <button
               onClick={() => setActiveTab("competencies")}
               className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 whitespace-nowrap ${
@@ -508,7 +554,7 @@ export default function StudentDashboardPage() {
               }`}
             >
               <Award className="w-4 h-4" />
-              <span>الجدارات وسجل الكفاءات ({activeDossier.competencies.length})</span>
+              <span>Competency Matrix ({activeDossier.competencies.length})</span>
             </button>
 
             <button
@@ -520,7 +566,7 @@ export default function StudentDashboardPage() {
               }`}
             >
               <Calendar className="w-4 h-4" />
-              <span>مواعيد الاختبارات القادمة ({upcomingExams.length})</span>
+              <span>Exam Schedule ({upcomingExams.length})</span>
             </button>
 
             <button
@@ -531,8 +577,8 @@ export default function StudentDashboardPage() {
                   : "text-slate-600 dark:text-neutral-300 hover:bg-slate-100 dark:hover:bg-white/5"
               }`}
             >
-              <FileText className="w-4 h-4" />
-              <span>السجل الأكاديمي المعتمد</span>
+              <FileCheck className="w-4 h-4" />
+              <span>Academic Transcript</span>
             </button>
 
             <button
@@ -544,13 +590,178 @@ export default function StudentDashboardPage() {
               }`}
             >
               <User className="w-4 h-4" />
-              <span>بيانات الطالب والمحطة التدريبية</span>
+              <span>Candidate Dossier</span>
             </button>
           </div>
         </div>
 
         {/* ============================================================== */}
-        {/* TAB 1: COMPETENCIES & TECHNICAL SKILLS (الجدارات السابقة والجديدة) */}
+        {/* TAB 0: DASHBOARD ANALYTICS & CHARTS (Real Student Dashboard!)  */}
+        {/* ============================================================== */}
+        {activeTab === "overview" && (
+          <div className="space-y-6">
+            {/* Charts Row */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Left 2 Cols: Competency Scores Bar Chart */}
+              <div className="lg:col-span-2 p-6 rounded-3xl bg-white dark:bg-[#12131a] border border-slate-200/80 dark:border-white/10 shadow-sm space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-slate-100 dark:border-white/10">
+                  <div>
+                    <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                      <BarChart3 className="w-4 h-4 text-[#c8102e]" />
+                      Competency Assessment Scores
+                    </h3>
+                    <p className="text-xs text-slate-500 dark:text-neutral-400">
+                      Scores achieved per unit vs minimum passing threshold (75%)
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3 text-xs">
+                    <span className="flex items-center gap-1.5 font-semibold text-slate-700 dark:text-neutral-300">
+                      <span className="w-3 h-3 rounded-sm bg-[#c8102e] inline-block" /> Earned Score
+                    </span>
+                    <span className="flex items-center gap-1.5 font-semibold text-slate-400">
+                      <span className="w-3 h-0.5 bg-amber-400 inline-block" /> Pass Threshold (75%)
+                    </span>
+                  </div>
+                </div>
+
+                <div className="h-64 sm:h-72 w-full pt-2">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={chartPerformanceData} margin={{ top: 10, right: 10, left: -20, bottom: 20 }}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.15} />
+                      <XAxis dataKey="code" tick={{ fontSize: 11 }} tickLine={false} />
+                      <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} tickLine={false} />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "#18181b",
+                          borderColor: "#27272a",
+                          borderRadius: "12px",
+                          color: "#fff",
+                          fontSize: "12px",
+                        }}
+                      />
+                      <Bar dataKey="score" fill="#c8102e" radius={[6, 6, 0, 0]} maxBarSize={45}>
+                        {chartPerformanceData.map((entry, index) => (
+                          <Cell
+                            key={`cell-${index}`}
+                            fill={entry.score >= 90 ? "#c8102e" : "#e11d48"}
+                          />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              {/* Right Col: 4 Evaluation Pillars Radar */}
+              <div className="p-6 rounded-3xl bg-white dark:bg-[#12131a] border border-slate-200/80 dark:border-white/10 shadow-sm space-y-4">
+                <div className="pb-2 border-b border-slate-100 dark:border-white/10">
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <Target className="w-4 h-4 text-emerald-500" />
+                    Skill Mastery Pillars
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-neutral-400">
+                    Comprehensive rubric performance index
+                  </p>
+                </div>
+
+                <div className="h-64 sm:h-72 w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <RadarChart data={radarData}>
+                      <PolarGrid opacity={0.2} />
+                      <PolarAngleAxis dataKey="pillar" tick={{ fontSize: 10, fill: "#94a3b8" }} />
+                      <PolarRadiusAxis domain={[0, 100]} tick={false} axisLine={false} />
+                      <Radar
+                        name="Skill Index"
+                        dataKey="score"
+                        stroke="#c8102e"
+                        fill="#c8102e"
+                        fillOpacity={0.4}
+                      />
+                    </RadarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            </div>
+
+            {/* Recent Milestones & Upcoming Deliverables Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Active Milestone Card */}
+              <div className="p-6 rounded-3xl bg-white dark:bg-[#12131a] border border-slate-200/80 dark:border-white/10 shadow-sm space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-amber-500" />
+                    Current Formative Assessment Unit
+                  </h3>
+                  <Badge className="bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30 text-xs font-bold">
+                    89% In-Progress
+                  </Badge>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-amber-50/50 dark:bg-amber-950/20 border border-amber-200/40 dark:border-amber-900/30 space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-xs font-black text-amber-900 dark:text-amber-300">
+                      COMP-IOT-305
+                    </span>
+                    <span className="text-xs text-amber-800 dark:text-amber-400 font-semibold">
+                      Industrial IoT & Modbus Telemetry
+                    </span>
+                  </div>
+                  <Progress value={89} className="h-2 bg-amber-200 dark:bg-amber-950" />
+                  <p className="text-xs text-slate-600 dark:text-neutral-300">
+                    Candidate has completed MQTT broker integration and RS485 Modbus streaming. Final hardware rig defense review scheduled next week.
+                  </p>
+                  <div className="pt-1 flex items-center justify-between text-xs text-slate-500 dark:text-neutral-400">
+                    <span>Assessor: Eng. Ahmed Tarek</span>
+                    <span>Target Verification: Nov 18, 2026</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Next Exam Countdown Card */}
+              <div className="p-6 rounded-3xl bg-white dark:bg-[#12131a] border border-slate-200/80 dark:border-white/10 shadow-sm space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-blue-500" />
+                    Next Scheduled Evaluation
+                  </h3>
+                  <Badge className="bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-500/30 text-xs font-bold">
+                    15 Days Remaining
+                  </Badge>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200/40 dark:border-blue-900/30 space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-xs font-black text-blue-900 dark:text-blue-300">
+                      COMP-CAP-306
+                    </span>
+                    <span className="text-xs text-blue-800 dark:text-blue-400 font-semibold">
+                      Capstone Committee Defense
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-600 dark:text-neutral-300">
+                    Scheduled date: <span className="font-bold text-slate-900 dark:text-white">Thursday, Nov 26, 2026 at 10:00 AM</span>
+                  </p>
+                  <div className="text-xs text-slate-500 dark:text-neutral-400 flex items-center gap-1.5">
+                    <MapPin className="w-3.5 h-3.5 text-blue-500" />
+                    <span>Elsewedy Advanced Robotics Hub - Hall A-102</span>
+                  </div>
+                  <div className="pt-2 flex justify-end">
+                    <Button
+                      size="sm"
+                      onClick={() => setActiveTab("schedule")}
+                      className="h-7 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold"
+                    >
+                      View Exam Details & Guidelines
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ============================================================== */}
+        {/* TAB 1: COMPETENCY MATRIX & UNITS (All in English)              */}
         {/* ============================================================== */}
         {activeTab === "competencies" && (
           <div className="space-y-6">
@@ -558,7 +769,7 @@ export default function StudentDashboardPage() {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex flex-wrap items-center gap-1.5">
                 <span className="text-xs font-bold text-slate-500 dark:text-neutral-400 mr-2 flex items-center gap-1">
-                  <Filter className="w-3.5 h-3.5" /> تصفية الجدارات:
+                  <Filter className="w-3.5 h-3.5" /> Filter Units:
                 </span>
                 <button
                   onClick={() => setCompetencyStatusFilter("ALL")}
@@ -568,7 +779,7 @@ export default function StudentDashboardPage() {
                       : "bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-neutral-400 hover:bg-slate-200"
                   }`}
                 >
-                  جميع الجدارات ({activeDossier.competencies.length})
+                  All Competencies ({activeDossier.competencies.length})
                 </button>
                 <button
                   onClick={() => setCompetencyStatusFilter("PASSED")}
@@ -578,7 +789,7 @@ export default function StudentDashboardPage() {
                       : "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100"
                   }`}
                 >
-                  المجتازة السابقة ({activeDossier.completedCompetenciesCount})
+                  Passed Units ({activeDossier.completedCompetenciesCount})
                 </button>
                 <button
                   onClick={() => setCompetencyStatusFilter("IN_PROGRESS")}
@@ -588,7 +799,7 @@ export default function StudentDashboardPage() {
                       : "bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 hover:bg-amber-100"
                   }`}
                 >
-                  الحالية قيد التقييم ({activeDossier.inProgressCompetenciesCount})
+                  In Assessment ({activeDossier.inProgressCompetenciesCount})
                 </button>
                 <button
                   onClick={() => setCompetencyStatusFilter("UPCOMING")}
@@ -598,12 +809,12 @@ export default function StudentDashboardPage() {
                       : "bg-blue-50 dark:bg-blue-950/20 text-blue-700 dark:text-blue-400 hover:bg-blue-100"
                   }`}
                 >
-                  القادمة والجديدة ({activeDossier.upcomingCompetenciesCount})
+                  Upcoming Exams ({activeDossier.upcomingCompetenciesCount})
                 </button>
               </div>
 
               <div className="text-xs text-slate-400">
-                اضغط على أي جدارة لعرض كشف المعايير وتوقيع المراجع الخارجي
+                Click any competency to inspect full rubrics and audit stamps
               </div>
             </div>
 
@@ -625,7 +836,7 @@ export default function StudentDashboardPage() {
                     className="group cursor-pointer rounded-2xl bg-white dark:bg-[#12131a] border border-slate-200/80 dark:border-white/10 p-5 shadow-sm hover:shadow-xl hover:border-[#c8102e]/40 dark:hover:border-[#c8102e]/50 transition-all flex flex-col justify-between"
                   >
                     <div>
-                      {/* Top Badges: Code & Status */}
+                      {/* Top Badges */}
                       <div className="flex items-center justify-between gap-2 mb-3">
                         <span className="font-mono text-xs font-black px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-neutral-300 border border-slate-200 dark:border-white/10">
                           {comp.code}
@@ -634,44 +845,44 @@ export default function StudentDashboardPage() {
                         {isPassed && (
                           <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30 text-[11px] font-bold">
                             <CheckCircle2 className="w-3 h-3 mr-1" />
-                            {comp.status === "Passed" ? "مجتازة ومستوفاة" : "مجتازة (دور ثانٍ)"}
+                            {comp.status === "Passed" ? "Passed (1st Round)" : "Passed (Retake)"}
                           </Badge>
                         )}
                         {isInProgress && (
                           <Badge className="bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30 text-[11px] font-bold animate-pulse">
                             <Clock className="w-3 h-3 mr-1" />
-                            قيد التقييم الفعلي
+                            In Assessment
                           </Badge>
                         )}
                         {isUpcoming && (
                           <Badge className="bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-500/30 text-[11px] font-bold">
                             <Calendar className="w-3 h-3 mr-1" />
-                            امتحان مجدول
+                            Scheduled Exam
                           </Badge>
                         )}
                       </div>
 
-                      {/* Competency Title in En & Ar */}
+                      {/* Title */}
                       <h3 className="text-base font-bold text-slate-900 dark:text-white group-hover:text-[#c8102e] transition-colors leading-snug">
                         {comp.nameEn}
                       </h3>
-                      <p className="text-xs font-semibold text-slate-500 dark:text-neutral-400 mt-1 mb-4 font-mono">
-                        {comp.nameAr}
+                      <p className="text-xs text-slate-500 dark:text-neutral-400 mt-1 mb-4">
+                        {comp.categoryEn} • {comp.level}
                       </p>
 
-                      {/* Score or Next Exam Date Highlight */}
+                      {/* Score Highlight */}
                       {isPassed && (
                         <div className="p-3 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 mb-4">
                           <div className="flex items-center justify-between text-xs mb-1">
-                            <span className="text-slate-500 dark:text-neutral-400 font-medium">الدرجة الكلية</span>
+                            <span className="text-slate-500 dark:text-neutral-400 font-medium">Earned Score</span>
                             <span className="font-black text-slate-900 dark:text-white text-sm">
                               {comp.score} / {comp.maxScore}
                             </span>
                           </div>
                           <Progress value={comp.score || 0} className="h-1.5" />
                           <div className="flex items-center justify-between text-[10px] text-slate-400 mt-1.5">
-                            <span>تاريخ الاعتماد: {comp.assessmentDate}</span>
-                            <span>{comp.attemptsCount === 1 ? "دور أول" : "محاولة ثانية"}</span>
+                            <span>Assessed: {comp.assessmentDate}</span>
+                            <span>{comp.attemptsCount === 1 ? "1st Attempt" : "2nd Attempt"}</span>
                           </div>
                         </div>
                       )}
@@ -679,14 +890,14 @@ export default function StudentDashboardPage() {
                       {isInProgress && (
                         <div className="p-3 rounded-xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200/50 dark:border-amber-900/30 mb-4">
                           <div className="flex items-center justify-between text-xs mb-1">
-                            <span className="text-amber-800 dark:text-amber-300 font-bold">التقدم التكويني:</span>
+                            <span className="text-amber-800 dark:text-amber-300 font-bold">Formative Progress</span>
                             <span className="font-black text-amber-700 dark:text-amber-400 text-sm">
                               89%
                             </span>
                           </div>
                           <Progress value={89} className="h-1.5 bg-amber-200 dark:bg-amber-950" />
                           <p className="text-[11px] text-amber-700 dark:text-amber-400 mt-1.5">
-                            المرحلة الحالية: معمل إنترنت الأشياء وبث مستشعرات Modbus
+                            Active stage: IoT Sensors & Modbus RS485 Integration
                           </p>
                         </div>
                       )}
@@ -695,23 +906,23 @@ export default function StudentDashboardPage() {
                         <div className="p-3 rounded-xl bg-blue-50/60 dark:bg-blue-950/20 border border-blue-200/50 dark:border-blue-900/30 mb-4">
                           <div className="flex items-center justify-between text-xs text-blue-800 dark:text-blue-300 font-bold mb-1">
                             <span className="flex items-center gap-1">
-                              <Calendar className="w-3.5 h-3.5" /> موعد الاختبار:
+                              <Calendar className="w-3.5 h-3.5" /> Examination Date
                             </span>
                             <span className="font-mono">{comp.assessmentDate}</span>
                           </div>
                           <p className="text-[11px] text-blue-700 dark:text-blue-400">
-                            الوقت: {comp.assessmentTime || "10:00 AM"}
+                            Time: {comp.assessmentTime || "10:00 AM"}
                           </p>
                           <div className="mt-2 text-[10px] px-2 py-0.5 rounded bg-blue-200/50 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200 font-semibold w-fit">
-                            متبقي {comp.countdownDays || 15} يوم على الامتحان
+                            {comp.countdownDays || 15} days remaining
                           </div>
                         </div>
                       )}
 
-                      {/* Criteria Mini Preview */}
+                      {/* Criteria Preview */}
                       <div className="space-y-1 mb-4">
                         <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
-                          معايير الأداء المقيمة:
+                          Assessed Rubric Criteria:
                         </span>
                         {comp.criteria.slice(0, 2).map((crit, idx) => (
                           <div key={idx} className="flex items-center justify-between text-xs text-slate-600 dark:text-neutral-400">
@@ -724,11 +935,11 @@ export default function StudentDashboardPage() {
                       </div>
                     </div>
 
-                    {/* Card Footer: Assessor & Verifier details */}
+                    {/* Card Footer */}
                     <div className="pt-3 border-t border-slate-100 dark:border-white/5 flex items-center justify-between text-[11px] text-slate-500 dark:text-neutral-400">
                       <div className="truncate">
                         <span className="font-bold text-slate-700 dark:text-neutral-300">
-                          {isUpcoming ? "اللجنة:" : "المقيم:"}
+                          {isUpcoming ? "Jury:" : "Assessor:"}
                         </span>{" "}
                         {comp.assessorName}
                       </div>
@@ -751,19 +962,19 @@ export default function StudentDashboardPage() {
                 <div>
                   <h2 className="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
                     <Calendar className="w-5 h-5 text-[#c8102e]" />
-                    جدول الاختبارات القادمة ولجان التقييم المعتمدة
+                    Upcoming Examination Schedule & Assessment Panels
                   </h2>
                   <p className="text-xs text-slate-500 dark:text-neutral-400 mt-1">
-                    مواعيد اختبارات الجدارات الجديدة المتبقية للطالب للتخرج والاعتماد المهني
+                    Official schedule of remaining competency assessments required for national graduation
                   </p>
                 </div>
                 <Badge className="bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20 text-xs font-bold">
-                  {upcomingExams.length} اختبارات مجدولة
+                  {upcomingExams.length} Scheduled Evaluations
                 </Badge>
               </div>
 
               <div className="space-y-5">
-                {upcomingExams.map((exam, idx) => (
+                {upcomingExams.map((exam) => (
                   <div
                     key={exam.id}
                     className="p-5 sm:p-6 rounded-2xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 space-y-4 hover:border-blue-400/50 transition-all"
@@ -781,13 +992,13 @@ export default function StudentDashboardPage() {
                         <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white mt-1">
                           {exam.nameEn}
                         </h3>
-                        <p className="text-xs text-slate-500 dark:text-neutral-400 font-mono">
-                          {exam.nameAr}
+                        <p className="text-xs text-slate-500 dark:text-neutral-400">
+                          {exam.categoryEn}
                         </p>
                       </div>
 
                       <div className="text-left sm:text-right shrink-0 bg-white dark:bg-black/30 p-3 rounded-xl border border-slate-200 dark:border-white/10">
-                        <div className="text-xs text-slate-400 font-medium">موعد انعقاد اللجنة</div>
+                        <div className="text-xs text-slate-400 font-medium">Committee Convening Date</div>
                         <div className="text-sm font-black text-[#c8102e] flex items-center gap-1.5 mt-0.5">
                           <Calendar className="w-4 h-4" />
                           <span>{exam.assessmentDate}</span>
@@ -803,27 +1014,24 @@ export default function StudentDashboardPage() {
                       <div className="p-3 rounded-xl bg-white dark:bg-black/20 border border-slate-100 dark:border-white/5 space-y-1">
                         <span className="font-bold text-slate-700 dark:text-neutral-300 flex items-center gap-1.5">
                           <MapPin className="w-3.5 h-3.5 text-[#c8102e]" />
-                          مكان ومقر الامتحان
+                          Exam Hall & Venue
                         </span>
                         <p className="text-slate-600 dark:text-neutral-400">
                           {exam.venueEn}
                         </p>
-                        <p className="text-slate-500 dark:text-neutral-500 font-mono text-[11px]">
-                          {exam.venueAr}
-                        </p>
                       </div>
 
-                      {/* Evaluation Committee */}
+                      {/* Evaluation Panel */}
                       <div className="p-3 rounded-xl bg-white dark:bg-black/20 border border-slate-100 dark:border-white/5 space-y-1">
                         <span className="font-bold text-slate-700 dark:text-neutral-300 flex items-center gap-1.5">
                           <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-                          أعضاء لجنة التقييم
+                          Examination Jury Board
                         </span>
                         <p className="text-slate-600 dark:text-neutral-400">
-                          المقيم: <span className="font-semibold text-slate-900 dark:text-white">{exam.assessorName}</span>
+                          Assessor: <span className="font-semibold text-slate-900 dark:text-white">{exam.assessorName}</span>
                         </p>
                         <p className="text-slate-600 dark:text-neutral-400">
-                          المراجع الخارجي: <span className="font-semibold text-slate-900 dark:text-white">{exam.verifierName}</span>
+                          Verifier: <span className="font-semibold text-slate-900 dark:text-white">{exam.verifierName}</span>
                         </p>
                       </div>
 
@@ -831,23 +1039,23 @@ export default function StudentDashboardPage() {
                       <div className="p-3 rounded-xl bg-white dark:bg-black/20 border border-slate-100 dark:border-white/5 space-y-1">
                         <span className="font-bold text-slate-700 dark:text-neutral-300 flex items-center gap-1.5">
                           <BadgeCheck className="w-3.5 h-3.5 text-blue-500" />
-                          حالة الأهلية لدخول الامتحان
+                          Eligibility Status
                         </span>
                         <div className="flex items-center gap-2 pt-0.5">
                           <span className="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 font-bold text-[11px]">
-                            مؤهل ومستوفٍ للحضور (Eligible)
+                            Cleared for Examination (Eligible)
                           </span>
                         </div>
                         <p className="text-[11px] text-slate-400">
-                          متبقي <span className="font-bold text-[#c8102e]">{exam.countdownDays} يوم</span> للجاهزية
+                          <span className="font-bold text-[#c8102e]">{exam.countdownDays} days remaining</span>
                         </p>
                       </div>
                     </div>
 
-                    {/* Required Deliverables & Prerequisites */}
+                    {/* Pre-Exam Checklist */}
                     <div className="p-4 rounded-xl bg-blue-50/50 dark:bg-blue-950/15 border border-blue-200/40 dark:border-blue-900/30 space-y-2">
                       <span className="text-xs font-bold text-blue-900 dark:text-blue-300 flex items-center gap-1.5">
-                        <Info className="w-3.5 h-3.5" /> المتطلبات والمخرجات الواجب تسليمها قبل موعد الاختبار:
+                        <Info className="w-3.5 h-3.5" /> Required Pre-Assessment Deliverables & Submission Items:
                       </span>
                       <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-blue-950 dark:text-blue-200">
                         {exam.upcomingDeliverables?.map((del, dIdx) => (
@@ -866,12 +1074,12 @@ export default function StudentDashboardPage() {
         )}
 
         {/* ============================================================== */}
-        {/* TAB 3: OFFICIAL ACADEMIC TRANSCRIPT (السجل الأكاديمي المعتمد)   */}
+        {/* TAB 3: OFFICIAL ACADEMIC TRANSCRIPT                            */}
         {/* ============================================================== */}
         {activeTab === "transcript" && (
           <div className="space-y-6">
             <div className="p-6 sm:p-8 rounded-3xl bg-white dark:bg-[#12131a] border border-slate-200/80 dark:border-white/10 shadow-sm space-y-6">
-              {/* Header / Seal */}
+              {/* Transcript Official Header */}
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-6 border-b border-slate-200 dark:border-white/10 gap-4">
                 <div className="flex items-center gap-4">
                   <div className="w-14 h-14 rounded-2xl bg-[#c8102e] text-white flex items-center justify-center font-black text-2xl shadow-lg">
@@ -906,7 +1114,7 @@ export default function StudentDashboardPage() {
                 </div>
               </div>
 
-              {/* Transcript Table */}
+              {/* Transcript Data Table */}
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
@@ -929,7 +1137,7 @@ export default function StudentDashboardPage() {
                         </td>
                         <td className="py-3.5 px-3">
                           <div className="font-bold text-slate-900 dark:text-white">{c.nameEn}</div>
-                          <div className="text-[11px] text-slate-500 dark:text-neutral-400 font-mono">{c.nameAr}</div>
+                          <div className="text-[11px] text-slate-500 dark:text-neutral-400">{c.level}</div>
                         </td>
                         <td className="py-3.5 px-3 text-slate-600 dark:text-neutral-300">
                           {c.categoryEn}
@@ -937,7 +1145,7 @@ export default function StudentDashboardPage() {
                         <td className="py-3.5 px-3 text-center">
                           {c.attemptsCount > 0 ? (
                             <span className="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-neutral-300 font-mono text-[11px]">
-                              Round {c.attemptsCount}
+                              Attempt {c.attemptsCount}
                             </span>
                           ) : (
                             <span className="text-slate-400">-</span>
@@ -978,7 +1186,7 @@ export default function StudentDashboardPage() {
                 </table>
               </div>
 
-              {/* Institutional Signatures Block */}
+              {/* Signature Blocks */}
               <div className="pt-6 border-t border-slate-200 dark:border-white/10 grid grid-cols-1 sm:grid-cols-3 gap-6 text-center text-xs">
                 <div className="p-4 rounded-2xl bg-slate-50 dark:bg-white/[0.02] border border-slate-100 dark:border-white/5">
                   <div className="text-slate-400 text-[10px] uppercase font-bold mb-1">Lead Internal Assessor</div>
@@ -991,9 +1199,9 @@ export default function StudentDashboardPage() {
                   <div className="text-emerald-600 dark:text-emerald-400 font-mono text-[10px] mt-1">✓ Quality Stamp Affixed</div>
                 </div>
                 <div className="p-4 rounded-2xl bg-slate-50 dark:bg-white/[0.02] border border-slate-100 dark:border-white/5">
-                  <div className="text-slate-400 text-[10px] uppercase font-bold mb-1">Academy Dean & Controller</div>
-                  <div className="font-bold text-slate-900 dark:text-white">Dr. Examination Control Board</div>
-                  <div className="text-emerald-600 dark:text-emerald-400 font-mono text-[10px] mt-1">✓ Accredited Record</div>
+                  <div className="text-slate-400 text-[10px] uppercase font-bold mb-1">Academic Controller</div>
+                  <div className="font-bold text-slate-900 dark:text-white">Examination Board Registry</div>
+                  <div className="text-emerald-600 dark:text-emerald-400 font-mono text-[10px] mt-1">✓ Verified National Record</div>
                 </div>
               </div>
             </div>
@@ -1001,93 +1209,89 @@ export default function StudentDashboardPage() {
         )}
 
         {/* ============================================================== */}
-        {/* TAB 4: CANDIDATE DOSSIER & PERSONAL DETAILS                     */}
+        {/* TAB 4: CANDIDATE INFORMATION & FIELD TRAINING                  */}
         {/* ============================================================== */}
         {activeTab === "profile" && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Personal Information Card */}
+            {/* Personal Information */}
             <div className="p-6 rounded-3xl bg-white dark:bg-[#12131a] border border-slate-200/80 dark:border-white/10 shadow-sm space-y-4">
               <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2 pb-3 border-b border-slate-100 dark:border-white/10">
                 <User className="w-4 h-4 text-[#c8102e]" />
-                البيانات الشخصية والأكاديمية
+                Personal & Enrollment Records
               </h3>
 
               <div className="space-y-3 text-xs">
                 <div className="flex justify-between py-1.5 border-b border-slate-100 dark:border-white/5">
-                  <span className="text-slate-400">الاسم بالإنجليزية:</span>
+                  <span className="text-slate-400">Full Name:</span>
                   <span className="font-bold text-slate-900 dark:text-white">{activeDossier.fullNameEn}</span>
                 </div>
                 <div className="flex justify-between py-1.5 border-b border-slate-100 dark:border-white/5">
-                  <span className="text-slate-400">الاسم باللغة العربية:</span>
-                  <span className="font-bold text-slate-900 dark:text-white">{activeDossier.fullNameAr}</span>
-                </div>
-                <div className="flex justify-between py-1.5 border-b border-slate-100 dark:border-white/5">
-                  <span className="text-slate-400">الرقم القومي (14 رقم):</span>
+                  <span className="text-slate-400">National ID (14 digits):</span>
                   <span className="font-mono font-bold text-slate-900 dark:text-white">{activeDossier.nationalId}</span>
                 </div>
                 <div className="flex justify-between py-1.5 border-b border-slate-100 dark:border-white/5">
-                  <span className="text-slate-400">كود الطالب الأكاديمي:</span>
+                  <span className="text-slate-400">Academic Registration Code:</span>
                   <span className="font-mono font-bold text-[#c8102e]">{activeDossier.code}</span>
                 </div>
                 <div className="flex justify-between py-1.5 border-b border-slate-100 dark:border-white/5">
-                  <span className="text-slate-400">البريد الإلكتروني الرسمي:</span>
+                  <span className="text-slate-400">Institutional Email:</span>
                   <span className="font-mono text-slate-700 dark:text-neutral-300">{activeDossier.email}</span>
                 </div>
                 <div className="flex justify-between py-1.5 border-b border-slate-100 dark:border-white/5">
-                  <span className="text-slate-400">رقم الهاتف المحمول:</span>
+                  <span className="text-slate-400">Contact Number:</span>
                   <span className="font-mono text-slate-700 dark:text-neutral-300">{activeDossier.phone}</span>
                 </div>
                 <div className="flex justify-between py-1.5 border-b border-slate-100 dark:border-white/5">
-                  <span className="text-slate-400">تاريخ الميلاد:</span>
+                  <span className="text-slate-400">Date of Birth:</span>
                   <span className="text-slate-700 dark:text-neutral-300">{activeDossier.dateOfBirth}</span>
                 </div>
                 <div className="flex justify-between py-1.5 border-b border-slate-100 dark:border-white/5">
-                  <span className="text-slate-400">المحافظة ومقر الإقامة:</span>
-                  <span className="text-slate-700 dark:text-neutral-300">{activeDossier.governorateAr}</span>
+                  <span className="text-slate-400">Residency Governorate:</span>
+                  <span className="text-slate-700 dark:text-neutral-300">Sharqia - 10th of Ramadan City</span>
                 </div>
                 <div className="flex justify-between py-1.5">
-                  <span className="text-slate-400">رقم هاتف ولي الأمر للطوارئ:</span>
+                  <span className="text-slate-400">Guardian Emergency Phone:</span>
                   <span className="font-mono text-slate-700 dark:text-neutral-300">{activeDossier.guardianPhone}</span>
                 </div>
               </div>
             </div>
 
-            {/* Field Training & Factory Station Card */}
+            {/* Industrial Plant & Field Station */}
             <div className="p-6 rounded-3xl bg-white dark:bg-[#12131a] border border-slate-200/80 dark:border-white/10 shadow-sm space-y-4">
               <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2 pb-3 border-b border-slate-100 dark:border-white/10">
                 <Building2 className="w-4 h-4 text-amber-500" />
-                المحطة التدريبية والمصنع الميداني
+                Industrial Field Station & Training Plant
               </h3>
 
               <div className="space-y-3 text-xs">
                 <div className="flex justify-between py-1.5 border-b border-slate-100 dark:border-white/5">
-                  <span className="text-slate-400">مجمع التدريب الصناعي:</span>
-                  <span className="font-semibold text-slate-900 dark:text-white">{activeDossier.factoryAr}</span>
+                  <span className="text-slate-400">Assigned Training Complex:</span>
+                  <span className="font-semibold text-slate-900 dark:text-white">{activeDossier.factoryEn}</span>
                 </div>
                 <div className="flex justify-between py-1.5 border-b border-slate-100 dark:border-white/5">
-                  <span className="text-slate-400">القسم والشعبة التخصصية:</span>
-                  <span className="font-semibold text-slate-900 dark:text-white">{activeDossier.specializationAr}</span>
+                  <span className="text-slate-400">Department & Discipline:</span>
+                  <span className="font-semibold text-slate-900 dark:text-white">{activeDossier.specializationEn}</span>
                 </div>
                 <div className="flex justify-between py-1.5 border-b border-slate-100 dark:border-white/5">
-                  <span className="text-slate-400">الفرقة الدراسية:</span>
-                  <span className="font-semibold text-slate-900 dark:text-white">{activeDossier.academicYearAr}</span>
+                  <span className="text-slate-400">Academic Standing:</span>
+                  <span className="font-semibold text-slate-900 dark:text-white">{activeDossier.academicYearEn}</span>
                 </div>
                 <div className="flex justify-between py-1.5 border-b border-slate-100 dark:border-white/5">
-                  <span className="text-slate-400">مشرف التدريب بالمصنع:</span>
+                  <span className="text-slate-400">Industrial Plant Supervisor:</span>
                   <span className="font-bold text-slate-900 dark:text-white">{activeDossier.factorySupervisor}</span>
                 </div>
                 <div className="flex justify-between py-1.5 border-b border-slate-100 dark:border-white/5">
-                  <span className="text-slate-400">نسبة الحضور والالتزام:</span>
+                  <span className="text-slate-400">Attendance & Punctuality:</span>
                   <span className="font-bold text-emerald-600 dark:text-emerald-400">{activeDossier.attendanceRate}%</span>
                 </div>
                 <div className="flex justify-between py-1.5 border-b border-slate-100 dark:border-white/5">
-                  <span className="text-slate-400">ساعات التدريب العملي المنجزة:</span>
-                  <span className="font-bold text-slate-900 dark:text-white">640 ساعة تدريبية</span>
+                  <span className="text-slate-400">Completed Practical Hours:</span>
+                  <span className="font-bold text-slate-900 dark:text-white">640 Training Hours</span>
                 </div>
                 <div className="flex justify-between py-1.5">
-                  <span className="text-slate-400">حالة الاعتماد النهائي:</span>
+                  <span className="text-slate-400">Accreditation Framework:</span>
                   <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-bold">
-                    معتمد ومطابق للمعايير الألمانية والمصرية
+                    Dual German-Egyptian Technical Accreditation
                   </span>
                 </div>
               </div>
@@ -1097,7 +1301,7 @@ export default function StudentDashboardPage() {
       </main>
 
       {/* ============================================================== */}
-      {/* MODAL: COMPETENCY CRITERIA & AUDIT DEEP-DIVE                   */}
+      {/* MODAL: COMPETENCY RUBRICS & AUDIT INSPECTION (All in English)  */}
       {/* ============================================================== */}
       <Dialog
         open={!!inspectedCompetency}
@@ -1120,23 +1324,27 @@ export default function StudentDashboardPage() {
                 <DialogTitle className="text-xl font-black text-slate-900 dark:text-white">
                   {inspectedCompetency.nameEn}
                 </DialogTitle>
-                <DialogDescription className="text-xs text-slate-500 dark:text-neutral-400 font-mono">
-                  {inspectedCompetency.nameAr} • {inspectedCompetency.categoryEn}
+                <DialogDescription className="text-xs text-slate-500 dark:text-neutral-400">
+                  {inspectedCompetency.categoryEn} • Competency Evaluation Dossier
                 </DialogDescription>
               </DialogHeader>
 
               {/* Status & Score Banner */}
               <div className="p-4 rounded-2xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/10 flex items-center justify-between">
                 <div>
-                  <div className="text-xs text-slate-400 font-medium">حالة التقييم والاعتماد</div>
+                  <div className="text-xs text-slate-400 font-medium">Evaluation Status</div>
                   <div className="font-bold text-slate-900 dark:text-white text-sm">
-                    {inspectedCompetency.statusAr}
+                    {inspectedCompetency.status.startsWith("Passed")
+                      ? "Competency Cleared & Officially Verified"
+                      : inspectedCompetency.status === "In Progress"
+                      ? "Active Formative Assessment Stage"
+                      : "Scheduled for Upcoming Examination"}
                   </div>
                 </div>
 
                 {inspectedCompetency.score && (
                   <div className="text-right">
-                    <div className="text-xs text-slate-400 font-medium">الدرجة النهائية</div>
+                    <div className="text-xs text-slate-400 font-medium">Earned Final Score</div>
                     <div className="text-2xl font-black text-[#c8102e]">
                       {inspectedCompetency.score} / {inspectedCompetency.maxScore}
                     </div>
@@ -1148,7 +1356,7 @@ export default function StudentDashboardPage() {
               <div className="space-y-3">
                 <h4 className="text-xs font-bold text-slate-500 dark:text-neutral-400 uppercase tracking-wider flex items-center gap-1.5">
                   <Award className="w-3.5 h-3.5 text-[#c8102e]" />
-                  معايير الأداء ومخرجات التعلم المقيمة (Evaluation Rubrics)
+                  Assessed Rubric Performance Criteria:
                 </h4>
 
                 <div className="space-y-2">
@@ -1160,10 +1368,9 @@ export default function StudentDashboardPage() {
                       <div className="flex items-center justify-between text-xs font-semibold">
                         <span className="text-slate-800 dark:text-neutral-200">{crit.nameEn}</span>
                         <span className="font-mono text-slate-900 dark:text-white">
-                          {inspectedCompetency.score ? `${crit.earned} / ${crit.max}` : `${crit.max} max`}
+                          {inspectedCompetency.score ? `${crit.earned} / ${crit.max}` : `${crit.max} max pts`}
                         </span>
                       </div>
-                      <div className="text-[11px] text-slate-400 font-mono">{crit.nameAr}</div>
                       {inspectedCompetency.score && (
                         <Progress value={(crit.earned / crit.max) * 100} className="h-1.5" />
                       )}
@@ -1176,7 +1383,7 @@ export default function StudentDashboardPage() {
               <div className="p-4 rounded-2xl bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/10 space-y-1.5">
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-bold text-slate-700 dark:text-neutral-300">
-                    ملاحظات وتوجيهات المقيم المسؤول:
+                    Lead Assessor Constructive Evaluation:
                   </span>
                   <span className="font-semibold text-slate-900 dark:text-white">
                     {inspectedCompetency.assessorName}
@@ -1187,15 +1394,15 @@ export default function StudentDashboardPage() {
                 </p>
               </div>
 
-              {/* Verifier Verification Seal */}
+              {/* External Verifier Seal */}
               <div className="p-4 rounded-2xl bg-emerald-50/60 dark:bg-emerald-950/20 border border-emerald-200/60 dark:border-emerald-900/40 flex items-center justify-between text-xs">
                 <div>
                   <div className="font-bold text-emerald-900 dark:text-emerald-300 flex items-center gap-1.5">
                     <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                    المراجع الخارجي: {inspectedCompetency.verifierName}
+                    External Quality Verifier: {inspectedCompetency.verifierName}
                   </div>
                   <div className="text-[11px] text-emerald-700 dark:text-emerald-400 font-mono mt-0.5">
-                    الختم الرقمي: {inspectedCompetency.verificationStamp || "AUDIT-QUEUED-2026"}
+                    Accreditation Stamp: {inspectedCompetency.verificationStamp || "AUDIT-QUEUED-2026"}
                   </div>
                 </div>
 
@@ -1211,7 +1418,7 @@ export default function StudentDashboardPage() {
                   onClick={() => setInspectedCompetency(null)}
                   className="rounded-xl font-bold text-xs"
                 >
-                  إغلاق النافذة
+                  Close Inspection
                 </Button>
               </div>
             </div>
