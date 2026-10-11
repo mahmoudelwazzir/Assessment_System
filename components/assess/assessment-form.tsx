@@ -180,6 +180,73 @@ export function AssessmentForm({
         </div>
       </div>
 
+      {/* ── Quick Fill Presets for Rapid Evaluation ───────────── */}
+      {canEdit && (
+        <div className="flex items-center gap-2 flex-wrap p-2.5 rounded-2xl bg-slate-100/60 dark:bg-white/[0.02] border border-slate-200/80 dark:border-white/5">
+          <span className="text-[11px] font-bold text-slate-500 dark:text-neutral-400 pl-1">
+            Quick-Score Presets:
+          </span>
+          <button
+            type="button"
+            onClick={() => {
+              const newScores: TaskScores = {};
+              tasks.forEach((t) => {
+                t.subTasks.forEach((st) => {
+                  newScores[`${t.id}.${st.id}`] = Math.round(st.maxPoints * 0.92);
+                });
+              });
+              setScores(newScores);
+              setNotes("Candidate demonstrates solid mastery of industrial competency standards, verified RTOS task synchronization, and safety guidelines.");
+            }}
+            className="text-[11px] font-bold px-2.5 py-1 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/20 transition-all cursor-pointer"
+          >
+            Auto-Fill 92% (Pass)
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              const newScores: TaskScores = {};
+              tasks.forEach((t) => {
+                t.subTasks.forEach((st) => {
+                  newScores[`${t.id}.${st.id}`] = Math.round(st.maxPoints * 0.82);
+                });
+              });
+              setScores(newScores);
+              setNotes("Candidate met baseline criteria with acceptable hardware demonstration.");
+            }}
+            className="text-[11px] font-bold px-2.5 py-1 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:bg-blue-500/20 border border-blue-500/20 transition-all cursor-pointer"
+          >
+            Auto-Fill 82% (Pass)
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              const newScores: TaskScores = {};
+              tasks.forEach((t) => {
+                t.subTasks.forEach((st) => {
+                  newScores[`${t.id}.${st.id}`] = Math.round(st.maxPoints * 0.65);
+                });
+              });
+              setScores(newScores);
+              setNotes("Candidate requires remedial review on FreeRTOS mutex deadlocks and memory boundary validation.");
+            }}
+            className="text-[11px] font-bold px-2.5 py-1 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20 border border-amber-500/20 transition-all cursor-pointer"
+          >
+            Auto-Fill 65% (Retake)
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setScores({});
+              setNotes("");
+            }}
+            className="text-[11px] font-bold px-2.5 py-1 rounded-xl bg-slate-200 dark:bg-white/10 text-slate-600 dark:text-neutral-400 hover:text-slate-900 dark:hover:text-white transition-all cursor-pointer ml-auto"
+          >
+            Clear Scores
+          </button>
+        </div>
+      )}
+
       {/* ── Tasks ─────────────────────────────────────────────── */}
       {taskResults.map((taskResult) => {
         const { task, total, passed } = taskResult;

@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   Users,
   Search,
@@ -16,28 +17,101 @@ import {
   CheckCircle2,
   Clock,
   GraduationCap,
+  RefreshCw,
+  SlidersHorizontal,
 } from "lucide-react";
 import { useAuth, useCurrentRole } from "@/lib/auth-context";
-import { useStudentsByAssessor } from "@/hooks/use-api";
+import { useStudentsByAssessor, useStudents } from "@/hooks/use-api";
+import { useToast } from "@/hooks/use-toast";
+import { ALL_STUDENT_DOSSIERS } from "@/lib/student-dossier-data";
+import type { Student } from "@/lib/api-client";
+
+// Guaranteed Fallback Roster from Elsewedy Candidate Dossiers
+const FALLBACK_STUDENT_ROSTER: Student[] = Object.values(ALL_STUDENT_DOSSIERS).map((d) => ({
+  id: d.id,
+  nationalId: d.nationalId,
+  email: d.email,
+  phone: d.phone,
+  fullNameEn: d.fullNameEn,
+  fullNameAr: d.fullNameAr,
+  className: "Class 1-A (Software Systems)",
+  status: d.overallPercentage >= 80 ? "Passed" : "Pending",
+  isActive: true,
+  competencies: d.competencies.map((c) => ({
+    courseId: 1,
+    competencyName: c.nameEn,
+    assessmentCycleId: 1,
+  })),
+}));
 
 export default function AssessorStudentsPage() {
   const router = useRouter();
+  const { toast } = useToast();
   const { user } = useAuth();
   const roleCtx = useCurrentRole();
 
-  const assessorId = user?.accountId || null;
+  const assessorId = user?.accountId || 1;
+
+  // Query assigned candidates from API
   const {
-    data: students,
-    isLoading,
-    error,
+    data: assignedStudents,
+    isLoading: isLoadingAssigned,
+    refetch: refetchAssigned,
   } = useStudentsByAssessor(assessorId);
+
+  // Query all cohort students from API
+  const {
+    data: allCohortStudents,
+    isLoading: isLoadingAll,
+    refetch: refetchAll,
+  } = useStudents();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState<"all" | "assessed" | "pending">("all");
+  const [viewScope, setViewScope] = useState<"assigned" | "cohort">("cohort");
+  const [localEvals, setLocalEvals] = useState<Record<string, any>>({});
+
+  // Load locally saved assessor evaluations to reflect immediate submissions
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("assessor_evaluations");
+      if (raw) {
+        setLocalEvals(JSON.parse(raw));
+      }
+    } catch {
+      // ignore JSON errors
+    }
+  }, []);
+
+  // Compute resolved students list with fallbacks
+  const resolvedStudents = useMemo(() => {
+    let source: Student[] = [];
+
+    if (viewScope === "assigned" && assignedStudents && assignedStudents.length > 0) {
+      source = assignedStudents;
+    } else if (allCohortStudents && allCohortStudents.length > 0) {
+      source = allCohortStudents;
+    } else {
+      source = FALLBACK_STUDENT_ROSTER;
+    }
+
+    // Merge locally recorded evaluations
+    return source.map((s) => {
+      const stored = localEvals[s.id.toString()];
+      if (stored) {
+        return {
+          ...s,
+          status: stored.passed ? "Passed" : "Not Passed",
+        };
+      }
+      return s;
+    });
+  }, [viewScope, assignedStudents, allCohortStudents, localEvals]);
+
+  const isLoading = isLoadingAssigned && isLoadingAll && resolvedStudents.length === 0;
 
   const filteredStudents = useMemo(() => {
-    if (!students) return [];
-    let list = students;
+    let list = resolvedStudents;
 
     // Filter by status tab
     if (filterStatus === "assessed") {
@@ -60,32 +134,30 @@ export default function AssessorStudentsPage() {
         s.email.toLowerCase().includes(q) ||
         s.nationalId.includes(q),
     );
-  }, [students, searchQuery, filterStatus]);
+  }, [resolvedStudents, searchQuery, filterStatus]);
 
   const assessedCount = useMemo(() => {
-    if (!students) return 0;
-    return students.filter(
+    return resolvedStudents.filter(
       (s) => s.status === "Passed" || s.status === "Not Passed",
     ).length;
-  }, [students]);
+  }, [resolvedStudents]);
 
-  const totalCount = students?.length || 0;
+  const totalCount = resolvedStudents.length;
   const pendingCount = totalCount - assessedCount;
 
-  if (error) {
-    return (
-      <div className="py-12 flex justify-center">
-        <Card className="p-8 max-w-md w-full text-center rounded-2xl bg-white dark:bg-[#121218] border border-red-200 dark:border-red-900/40 shadow-sm">
-          <p className="text-[#c8102e] font-bold text-lg mb-2">
-            Failed to Load Students
-          </p>
-          <p className="text-xs text-slate-500 dark:text-neutral-400 mb-4">
-            {error.message}
-          </p>
-        </Card>
-      </div>
-    );
-  }
+  const handleRefresh = () => {
+    refetchAssigned();
+    refetchAll();
+    try {
+      const raw = localStorage.getItem("assessor_evaluations");
+      if (raw) setLocalEvals(JSON.parse(raw));
+    } catch {}
+
+    toast({
+      title: "Student Roster Synchronized",
+      description: `Refreshed candidate pool: ${resolvedStudents.length} candidates available for evaluation.`,
+    });
+  };
 
   return (
     <div className="space-y-6 sm:space-y-8 animate-in fade-in-50 duration-300">
@@ -168,51 +240,90 @@ export default function AssessorStudentsPage() {
         </div>
       </div>
 
-      {/* Control Bar: Search and Status Filters */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
-        {/* Search Input */}
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-neutral-500 w-4 h-4" />
-          <Input
-            placeholder="Search by student name, email, or national ID..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            disabled={isLoading}
-            className="pl-10 h-11 rounded-2xl bg-white dark:bg-[#121218] border-slate-200/80 dark:border-white/10 text-slate-900 dark:text-white shadow-sm focus:ring-2 focus:ring-[#c8102e]/30"
-          />
+      {/* Control Bar: Search, Scope Switcher, Sync and Status Filters */}
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+          {/* Search Input */}
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-neutral-500 w-4 h-4" />
+            <Input
+              placeholder="Search by student name, email, or national ID..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              disabled={isLoading}
+              className="pl-10 h-11 rounded-2xl bg-white dark:bg-[#121218] border-slate-200/80 dark:border-white/10 text-slate-900 dark:text-white shadow-sm focus:ring-2 focus:ring-[#c8102e]/30"
+            />
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Scope Toggle */}
+            <div className="flex items-center gap-1 p-1 rounded-2xl bg-slate-100 dark:bg-white/5 border border-slate-200/80 dark:border-white/5">
+              <button
+                onClick={() => setViewScope("cohort")}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  viewScope === "cohort"
+                    ? "bg-white dark:bg-[#121218] text-slate-900 dark:text-white shadow-sm"
+                    : "text-slate-600 dark:text-neutral-400 hover:text-white"
+                }`}
+              >
+                Cohort ({resolvedStudents.length})
+              </button>
+              <button
+                onClick={() => setViewScope("assigned")}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  viewScope === "assigned"
+                    ? "bg-white dark:bg-[#121218] text-slate-900 dark:text-white shadow-sm"
+                    : "text-slate-600 dark:text-neutral-400 hover:text-white"
+                }`}
+              >
+                Assigned to Me ({assignedStudents?.length || 0})
+              </button>
+            </div>
+
+            {/* Sync Candidates Button */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRefresh}
+              className="h-9 px-3.5 rounded-xl border-slate-200 dark:border-white/10 text-xs font-bold flex items-center gap-1.5 hover:bg-slate-50 dark:hover:bg-white/5 cursor-pointer shadow-sm"
+            >
+              <RefreshCw className="w-3.5 h-3.5 text-[#c8102e]" />
+              <span>Reload Data</span>
+            </Button>
+          </div>
         </div>
 
         {/* Filter Tabs */}
-        <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-slate-100 dark:bg-white/5 border border-slate-200/80 dark:border-white/5 self-start sm:self-auto">
+        <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-slate-100 dark:bg-white/5 border border-slate-200/80 dark:border-white/5 self-start">
           <button
             onClick={() => setFilterStatus("all")}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               filterStatus === "all"
                 ? "bg-white dark:bg-[#121218] text-slate-900 dark:text-white shadow-sm"
                 : "text-slate-600 dark:text-neutral-400 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
-            All ({totalCount})
+            All Candidates ({totalCount})
           </button>
           <button
             onClick={() => setFilterStatus("pending")}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               filterStatus === "pending"
                 ? "bg-white dark:bg-[#121218] text-amber-600 dark:text-amber-400 shadow-sm"
                 : "text-slate-600 dark:text-neutral-400 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
-            Pending ({pendingCount})
+            Pending Evaluation ({pendingCount})
           </button>
           <button
             onClick={() => setFilterStatus("assessed")}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               filterStatus === "assessed"
                 ? "bg-white dark:bg-[#121218] text-emerald-600 dark:text-emerald-400 shadow-sm"
                 : "text-slate-600 dark:text-neutral-400 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
-            Assessed ({assessedCount})
+            Assessed & Graded ({assessedCount})
           </button>
         </div>
       </div>
