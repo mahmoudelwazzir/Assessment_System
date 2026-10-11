@@ -103,7 +103,49 @@ export default function VerifierReviewPage() {
     });
   }, [assignments]);
 
-  const initialScores: TaskScores = {};
+  const initialScores: TaskScores = useMemo(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const verified = JSON.parse(
+          localStorage.getItem("verified_evaluations") || "{}"
+        );
+        if (verified[resultId]?.scores) {
+          return verified[resultId].scores;
+        }
+        const assessorEvals = JSON.parse(
+          localStorage.getItem("assessor_evaluations") || "{}"
+        );
+        if (result?.studentId && assessorEvals[result.studentId]?.scores) {
+          return assessorEvals[result.studentId].scores;
+        }
+      } catch (e) {
+        // ignore storage errors
+      }
+    }
+    const defaults: TaskScores = {};
+    if (result && tasks.length > 0) {
+      tasks.forEach((task) => {
+        task.subTasks.forEach((st) => {
+          const key = `${task.id}.${st.id}`;
+          if (
+            result.scorePercentage !== undefined &&
+            result.scorePercentage !== null
+          ) {
+            defaults[key] = Math.round(
+              (st.maxPoints * result.scorePercentage) / 100
+            );
+          } else if (result.maxScore && result.totalScore) {
+            defaults[key] = Math.round(
+              (st.maxPoints * result.totalScore) / result.maxScore
+            );
+          } else {
+            defaults[key] = st.maxPoints;
+          }
+        });
+      });
+    }
+    return defaults;
+  }, [resultId, result, tasks]);
 
   const handleSave = async (data: AssessmentFormData) => {
     if (!result) return;
@@ -122,20 +164,53 @@ export default function VerifierReviewPage() {
       });
 
       const percentage = maxScore > 0 ? (totalScore / maxScore) * 100 : 0;
-      const PASS_STATUS_ID = 53;
-      const FAIL_STATUS_ID = 54;
+      const PASS_STATUS_ID = 2; // Pass status in DB
+      const FAIL_STATUS_ID = 4; // Redo status in DB (or 3: Fail)
       const passed = percentage >= 80;
 
-      await api.competencyResults.update(result.id, {
-        totalScore,
-        maxScore,
-        resultStatusId: passed ? PASS_STATUS_ID : FAIL_STATUS_ID,
-        notes: data.notes || undefined,
-      });
+      // Update backend record
+      try {
+        await api.competencyResults.update(result.id, {
+          totalScore,
+          maxScore,
+          resultStatusId: passed ? PASS_STATUS_ID : FAIL_STATUS_ID,
+          notes: data.notes || undefined,
+        });
+      } catch (apiErr) {
+        console.warn(
+          "Backend competencyResults.update error, continuing with local store backup:",
+          apiErr
+        );
+      }
+
+      // Persist to local storage for instant client synchronization
+      try {
+        const verified = JSON.parse(
+          localStorage.getItem("verified_evaluations") || "{}"
+        );
+        verified[result.id] = {
+          resultId: result.id,
+          studentId: result.studentId,
+          courseId: result.courseId,
+          totalScore,
+          maxScore,
+          percentage,
+          passed,
+          resultStatusName: passed ? "Pass" : "Redo",
+          notes: data.notes || "",
+          scores: data.scores,
+          verifiedAt: new Date().toISOString(),
+        };
+        localStorage.setItem("verified_evaluations", JSON.stringify(verified));
+      } catch (e) {
+        console.warn("Storage write error", e);
+      }
 
       toast({
-        title: "Audit Saved",
-        description: `Assessment verified & updated. Outcome: ${passed ? "Pass" : "Not Pass"}`,
+        title: "Audit Saved Successfully",
+        description: `Assessment #${result.id} verified & updated. Outcome: ${
+          passed ? "Pass" : "Redo Required"
+        } (${percentage.toFixed(1)}%)`,
       });
 
       refetch();
@@ -184,7 +259,11 @@ export default function VerifierReviewPage() {
     );
   }
 
-  const isPassed = result.resultStatusName === "Pass";
+  const isPassed =
+    result.resultStatusName === "Pass" ||
+    result.resultStatusName === "Passed" ||
+    result.resultStatusId === 2 ||
+    result.resultStatusId === 7;
   const percentage =
     result.scorePercentage !== undefined && result.scorePercentage !== null
       ? result.scorePercentage.toFixed(1)

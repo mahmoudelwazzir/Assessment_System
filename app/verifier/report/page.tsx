@@ -36,7 +36,14 @@ export default function VerifierReportPage() {
       return {
         title: course.title,
         total: courseResults.length,
-        passed: courseResults.filter((r) => r.resultStatusId === 53).length,
+        passed: courseResults.filter(
+          (r) =>
+            r.resultStatusId === 2 ||
+            r.resultStatusId === 7 ||
+            r.resultStatusId === 53 ||
+            r.resultStatusName === "Pass" ||
+            r.resultStatusName === "Passed"
+        ).length,
       };
     });
   }, [courses, results]);

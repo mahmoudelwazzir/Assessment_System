@@ -18,7 +18,10 @@ import { useApiQuery } from "@/hooks/use-api";
 import { api } from "@/lib/api-client";
 
 const TRIAL_LETTERS = ["A", "B", "C", "D"];
-const PASS_STATUS_ID = 53;
+const PASS_STATUS_ID = 2;
+
+const isPassStatus = (sId?: number, sName?: string) =>
+  sId === 2 || sId === 7 || sId === 53 || sName === "Pass" || sName === "Passed";
 
 export default function SubmissionsPage() {
   const router = useRouter();
@@ -54,7 +57,7 @@ export default function SubmissionsPage() {
     return {
       ...sorted[0],
       attemptCount: results.length,
-      hasPassed: results.some((r) => r.resultStatusId === PASS_STATUS_ID),
+      hasPassed: results.some((r) => isPassStatus(r.resultStatusId, r.resultStatusName)),
     };
   });
 
@@ -213,7 +216,10 @@ export default function SubmissionsPage() {
         ) : (
           <div className="divide-y divide-slate-100 dark:divide-white/5">
             {latestResults.map((result) => {
-              const isPassed = result.resultStatusId === PASS_STATUS_ID;
+              const isPassed = isPassStatus(
+                result.resultStatusId,
+                result.resultStatusName
+              );
               const trial =
                 TRIAL_LETTERS[Math.min(result.attemptCount - 1, 3)];
               const scorePercentage =

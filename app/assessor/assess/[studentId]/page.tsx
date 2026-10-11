@@ -128,10 +128,14 @@ export default function AssessStudentPage() {
 
   // Determine current trial and lock status
   const TRIAL_LETTERS: ("A" | "B" | "C" | "D")[] = ["A", "B", "C", "D"];
-  const PASS_STATUS_ID = 53;
+  const PASS_STATUS_ID = 2;
+  const FAIL_STATUS_ID = 4;
+
+  const isPassStatus = (sId?: number, sName?: string) =>
+    sId === 2 || sId === 7 || sId === 53 || sName === "Pass" || sName === "Passed";
 
   const hasPassed = existingResults?.some(
-    (result) => result.resultStatusId === PASS_STATUS_ID,
+    (result) => isPassStatus(result.resultStatusId, result.resultStatusName),
   );
 
   const attemptCount = existingResults?.length || 0;
@@ -236,7 +240,7 @@ export default function AssessStudentPage() {
         courseId: effectiveCourseId,
         courseRoundId: courseRoundId || 1,
         assessorId: user?.accountId || 1,
-        resultStatusId: passed ? 53 : 54,
+        resultStatusId: passed ? PASS_STATUS_ID : FAIL_STATUS_ID,
         scorePercentage: percentage,
         totalScore,
         maxScore,
@@ -328,11 +332,11 @@ export default function AssessStudentPage() {
 
   // Show locked message if student has passed
   if (isLocked && hasPassed) {
-    const passedResult = existingResults?.find(
-      (result) => result.resultStatusId === PASS_STATUS_ID,
+    const passedResult = existingResults?.find((result) =>
+      isPassStatus(result.resultStatusId, result.resultStatusName)
     );
-    const passedAttempt = existingResults?.findIndex(
-      (result) => result.resultStatusId === PASS_STATUS_ID,
+    const passedAttempt = existingResults?.findIndex((result) =>
+      isPassStatus(result.resultStatusId, result.resultStatusName)
     );
     const passedTrial =
       passedAttempt !== undefined && passedAttempt >= 0

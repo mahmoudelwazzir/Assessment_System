@@ -105,9 +105,22 @@ export default function VerifierResultsPage() {
 
     return {
       total: results.length,
-      passed: results.filter((r) => r.resultStatusName === "Pass").length,
-      notPassed: results.filter((r) => r.resultStatusName === "Not Pass")
-        .length,
+      passed: results.filter(
+        (r) =>
+          r.resultStatusName === "Pass" ||
+          r.resultStatusName === "Passed" ||
+          r.resultStatusId === 2 ||
+          r.resultStatusId === 7
+      ).length,
+      notPassed: results.filter(
+        (r) =>
+          r.resultStatusName === "Not Pass" ||
+          r.resultStatusName === "Fail" ||
+          r.resultStatusName === "Redo" ||
+          r.resultStatusId === 3 ||
+          r.resultStatusId === 4 ||
+          r.resultStatusId === 8
+      ).length,
       assessorsCount: uniqueAssessors.size,
     };
   }, [results]);
@@ -324,7 +337,11 @@ export default function VerifierResultsPage() {
         ) : (
           <div className="divide-y divide-slate-100 dark:divide-white/5">
             {filtered.map((result) => {
-              const isPassed = result.resultStatusName === "Pass";
+              const isPassed =
+                result.resultStatusName === "Pass" ||
+                result.resultStatusName === "Passed" ||
+                result.resultStatusId === 2 ||
+                result.resultStatusId === 7;
 
               const percentage =
                 result.scorePercentage !== undefined &&
