@@ -8,6 +8,7 @@ import {
   Eye,
   EyeOff,
   Moon,
+  Sun,
   Check,
   ShieldCheck,
   Sparkles,
@@ -15,6 +16,7 @@ import {
   Mail,
   ArrowRight,
 } from "lucide-react";
+import { useTheme } from "next-themes";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -122,6 +124,14 @@ export default function LoginPage() {
   const router = useRouter();
   const { login } = useAuth();
   const { toast } = useToast();
+  const { setTheme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const isDark = mounted ? resolvedTheme === "dark" : true;
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -419,17 +429,28 @@ export default function LoginPage() {
         {/* ========================================================================= */}
         {/* RIGHT PANEL: SIGN IN WORKSPACE (PIXEL PERFECT & HIGH ENGAGEMENT)          */}
         {/* ========================================================================= */}
-        <div className="lg:col-span-6 xl:col-span-6 bg-[#0a0a0f] flex flex-col justify-between p-8 sm:p-12 lg:p-14 xl:p-16 relative overflow-y-auto">
-          {/* Top Bar: Dark Mode Pill Badge */}
+        <div className="lg:col-span-6 xl:col-span-6 bg-slate-50 dark:bg-[#0a0a0f] text-slate-900 dark:text-white flex flex-col justify-between p-8 sm:p-12 lg:p-14 xl:p-16 relative overflow-y-auto transition-colors duration-200 border-l border-slate-200/80 dark:border-white/5">
+          {/* Top Bar: Functional Dark/Light Mode Pill Badge */}
           <div className="relative z-10 flex items-center justify-end w-full">
             <motion.button
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.96 }}
               type="button"
-              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/10 text-xs font-semibold text-neutral-300 hover:text-white hover:bg-white/[0.08] transition-colors cursor-pointer shadow-sm"
+              onClick={() => setTheme(isDark ? "light" : "dark")}
+              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 text-xs font-semibold text-slate-700 dark:text-neutral-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/[0.08] transition-colors cursor-pointer shadow-sm"
+              title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
             >
-              <Moon className="w-3.5 h-3.5 text-neutral-400" />
-              <span>Dark</span>
+              {isDark ? (
+                <>
+                  <Sun className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Light Mode</span>
+                </>
+              ) : (
+                <>
+                  <Moon className="w-3.5 h-3.5 text-slate-700" />
+                  <span>Dark Mode</span>
+                </>
+              )}
             </motion.button>
           </div>
 
@@ -447,10 +468,10 @@ export default function LoginPage() {
 
             {/* Header Titles */}
             <div className="text-center mb-8">
-              <h2 className="text-3xl font-extrabold tracking-tight text-white">
+              <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
                 Welcome back
               </h2>
-              <p className="mt-2 text-sm text-neutral-400">
+              <p className="mt-2 text-sm text-slate-500 dark:text-neutral-400">
                 Sign in to your Elsewedy Electrometer account to continue.
               </p>
             </div>
@@ -461,7 +482,7 @@ export default function LoginPage() {
               <div className="space-y-2 text-left">
                 <label
                   htmlFor="email"
-                  className="block text-[11px] font-bold uppercase tracking-wider text-neutral-400"
+                  className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-neutral-400"
                 >
                   EMAIL OR USERNAME
                 </label>
@@ -476,7 +497,7 @@ export default function LoginPage() {
                       setSelectedRole(null);
                     }}
                     disabled={isLoading}
-                    className="h-12 bg-[#12131b] border-white/10 hover:border-white/25 focus:border-[#e21836] focus:ring-2 focus:ring-[#e21836]/20 text-white placeholder:text-neutral-600 rounded-xl text-sm transition-all px-4"
+                    className="h-12 bg-white dark:bg-[#12131b] border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/25 focus:border-[#e21836] focus:ring-2 focus:ring-[#e21836]/20 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-neutral-600 rounded-xl text-sm transition-all px-4 shadow-2xs"
                   />
                 </div>
               </div>
@@ -485,7 +506,7 @@ export default function LoginPage() {
               <div className="space-y-2 text-left">
                 <label
                   htmlFor="password"
-                  className="block text-[11px] font-bold uppercase tracking-wider text-neutral-400"
+                  className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-neutral-400"
                 >
                   PASSWORD
                 </label>
@@ -500,12 +521,12 @@ export default function LoginPage() {
                       setSelectedRole(null);
                     }}
                     disabled={isLoading}
-                    className="h-12 bg-[#12131b] border-white/10 hover:border-white/25 focus:border-[#e21836] focus:ring-2 focus:ring-[#e21836]/20 text-white placeholder:text-neutral-600 rounded-xl text-sm transition-all px-4 pr-11"
+                    className="h-12 bg-white dark:bg-[#12131b] border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/25 focus:border-[#e21836] focus:ring-2 focus:ring-[#e21836]/20 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-neutral-600 rounded-xl text-sm transition-all px-4 pr-11 shadow-2xs"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-neutral-500 hover:text-white transition-colors cursor-pointer"
+                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 dark:text-neutral-500 hover:text-slate-700 dark:hover:text-white transition-colors cursor-pointer"
                   >
                     {showPassword ? (
                       <EyeOff className="h-4 w-4" />
@@ -520,13 +541,13 @@ export default function LoginPage() {
               <div className="flex items-center justify-between text-xs pt-1">
                 <label
                   onClick={() => setRememberMe(!rememberMe)}
-                  className="flex items-center gap-2 cursor-pointer select-none text-neutral-300"
+                  className="flex items-center gap-2 cursor-pointer select-none text-slate-600 dark:text-neutral-300"
                 >
                   <div
                     className={`w-4 h-4 rounded flex items-center justify-center transition-all ${
                       rememberMe
                         ? "bg-[#e21836] text-white shadow-[0_0_8px_rgba(226,24,54,0.6)]"
-                        : "border border-neutral-700 bg-[#12131b]"
+                        : "border border-slate-300 dark:border-neutral-700 bg-white dark:bg-[#12131b]"
                     }`}
                   >
                     {rememberMe && <Check className="w-3 h-3 stroke-[3]" />}
@@ -573,7 +594,7 @@ export default function LoginPage() {
             </form>
 
             {/* Bottom Access Note */}
-            <div className="mt-7 text-center text-xs text-neutral-400">
+            <div className="mt-7 text-center text-xs text-slate-500 dark:text-neutral-400">
               Don&apos;t have an account?{" "}
               <button
                 type="button"
@@ -585,9 +606,9 @@ export default function LoginPage() {
             </div>
 
             {/* Quick Role Fill Selector */}
-            <div className="mt-6 pt-5 border-t border-white/10 text-center">
-              <p className="text-[11px] text-neutral-500 font-mono mb-3">
-                Demo: admin@elsewedy.com / password
+            <div className="mt-6 pt-5 border-t border-slate-200 dark:border-white/10 text-center">
+              <p className="text-[11px] text-slate-500 dark:text-neutral-500 font-mono mb-3">
+                Quick Preset: click a role to autofill
               </p>
               <div className="flex flex-wrap items-center justify-center gap-2">
                 {DEMO_PRESETS.map((preset) => {
@@ -602,7 +623,7 @@ export default function LoginPage() {
                       className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all cursor-pointer ${
                         isSelected
                           ? "bg-[#e21836] text-white border-[#e21836] shadow-[0_0_12px_rgba(226,24,54,0.45)]"
-                          : "bg-white/[0.03] text-neutral-300 border-white/10 hover:border-white/20 hover:text-white"
+                          : "bg-white dark:bg-white/[0.03] text-slate-700 dark:text-neutral-300 border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 hover:text-slate-900 dark:hover:text-white shadow-2xs"
                       }`}
                     >
                       {preset.role}
@@ -629,18 +650,18 @@ export default function LoginPage() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.94, y: 10 }}
               transition={{ duration: 0.25, ease: [0.32, 0.72, 0, 1] }}
-              className="w-full max-w-lg bg-[#141419] border border-white/15 rounded-2xl p-6 text-white shadow-2xl relative text-left"
+              className="w-full max-w-lg bg-white dark:bg-[#141419] border border-slate-200 dark:border-white/15 rounded-2xl p-6 text-slate-900 dark:text-white shadow-2xl relative text-left"
             >
-              <div className="flex items-center justify-between pb-4 border-b border-white/10">
+              <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-white/10">
                 <div className="flex items-center gap-2.5">
                   <div className="p-2 rounded-lg bg-[#e21836]/20 text-[#e21836]">
                     <ShieldCheck className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-base">Active System Accounts</h3>
-                    <p className="text-xs text-neutral-400">
+                    <h3 className="font-bold text-base text-slate-900 dark:text-white">Active System Accounts</h3>
+                    <p className="text-xs text-slate-500 dark:text-neutral-400">
                       Live database accounts with password:{" "}
-                      <code className="text-white font-mono bg-white/15 px-1.5 py-0.5 rounded">
+                      <code className="text-[#e21836] dark:text-white font-mono bg-slate-100 dark:bg-white/15 px-1.5 py-0.5 rounded">
                         123456
                       </code>
                     </p>
@@ -649,7 +670,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setShowAccountsModal(false)}
-                  className="text-neutral-400 hover:text-white text-lg px-2 py-1 cursor-pointer"
+                  className="text-slate-400 dark:text-neutral-400 hover:text-slate-800 dark:hover:text-white text-lg px-2 py-1 cursor-pointer"
                 >
                   ✕
                 </button>
@@ -659,11 +680,11 @@ export default function LoginPage() {
                 {DEMO_PRESETS.map((preset) => (
                   <div
                     key={preset.role}
-                    className="p-3.5 rounded-xl bg-white/[0.04] border border-white/10 hover:border-white/20 flex items-center justify-between gap-3 transition-colors"
+                    className="p-3.5 rounded-xl bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 flex items-center justify-between gap-3 transition-colors"
                   >
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-white">
+                        <span className="text-xs font-bold text-slate-900 dark:text-white">
                           {preset.title}
                         </span>
                         <span
@@ -672,7 +693,7 @@ export default function LoginPage() {
                           {preset.badge}
                         </span>
                       </div>
-                      <p className="text-xs text-neutral-300 font-mono mt-1">
+                      <p className="text-xs text-slate-600 dark:text-neutral-300 font-mono mt-1">
                         {preset.email}
                       </p>
                     </div>
@@ -690,13 +711,13 @@ export default function LoginPage() {
                 ))}
               </div>
 
-              <div className="mt-5 pt-4 border-t border-white/10 flex justify-between items-center text-xs text-neutral-400">
+              <div className="mt-5 pt-4 border-t border-slate-100 dark:border-white/10 flex justify-between items-center text-xs text-slate-500 dark:text-neutral-400">
                 <span>
                   Default password: <strong>123456</strong>
                 </span>
                 <Button
                   onClick={() => setShowAccountsModal(false)}
-                  className="bg-neutral-800 hover:bg-neutral-700 text-white text-xs h-8 px-4 rounded-xl cursor-pointer"
+                  className="bg-slate-200 hover:bg-slate-300 text-slate-800 dark:bg-neutral-800 dark:hover:bg-neutral-700 dark:text-white text-xs h-8 px-4 rounded-xl cursor-pointer"
                 >
                   Close
                 </Button>

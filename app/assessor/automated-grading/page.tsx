@@ -5,3 +5,4 @@ import QuestionsAndAutomatedGradingPage from "@/app/controller/questions-grading
 export default function AssessorAutomatedGradingPage() {
   return <QuestionsAndAutomatedGradingPage />;
 }
+

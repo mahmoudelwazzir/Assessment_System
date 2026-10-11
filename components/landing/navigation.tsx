@@ -5,6 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Menu, X, ArrowRight, ShieldCheck } from "lucide-react";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -88,6 +89,8 @@ export function Navigation() {
 
           {/* Actions */}
           <div className="flex items-center gap-3">
+            <ThemeToggle />
+
             <Button
               size="sm"
               onClick={() => router.push("/login")}

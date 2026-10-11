@@ -28,10 +28,13 @@ import {
   GraduationCap,
   Layers,
   Search,
+  Moon,
+  Sun,
 } from "lucide-react";
 
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 interface TaskItem {
   id: string;
@@ -380,7 +383,6 @@ export default function StudentDashboardPage() {
   const { user, logout } = useAuth();
   const [activeNav, setActiveNav] = useState("Dashboard");
   const [selectedTask, setSelectedTask] = useState<TaskItem | null>(null);
-  const [selectedCompetency, setSelectedCompetency] = useState<CompetencyGradeItem | null>(null);
   const [filterCategory, setFilterCategory] = useState<string>("All");
 
   const studentName = user?.fullName || "Abd alhadi eabd alhamaid";
@@ -408,40 +410,45 @@ export default function StudentDashboardPage() {
   );
 
   return (
-    <div className="min-h-screen bg-[#f4f7fb] text-slate-800 flex font-sans antialiased selection:bg-[#d91438]/20">
+    <div className="min-h-screen bg-[#f4f7fb] dark:bg-[#07070a] text-slate-800 dark:text-neutral-200 flex font-sans antialiased selection:bg-[#d91438]/20 transition-colors duration-200">
       {/* ========================================================================= */}
       {/* LEFT SIDEBAR                                                              */}
       {/* ========================================================================= */}
-      <aside className="w-64 bg-white border-r border-slate-200/80 flex flex-col justify-between shrink-0 shadow-[2px_0_16px_rgba(0,0,0,0.02)] select-none">
+      <aside className="w-64 bg-white dark:bg-[#0c0c12] border-r border-slate-200/80 dark:border-white/10 flex flex-col justify-between shrink-0 shadow-[2px_0_16px_rgba(0,0,0,0.02)] select-none transition-colors duration-200">
         <div>
           {/* Logo Area */}
-          <div className="p-6 border-b border-slate-100 flex items-center gap-3">
-            <motion.div
-              whileHover={{ rotate: 12, scale: 1.05 }}
-              transition={{ type: "spring", stiffness: 300 }}
-              className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#d91438] to-[#ff2b54] flex items-center justify-center shadow-md shadow-red-900/20 cursor-pointer"
-            >
-              <div className="w-4 h-4 rounded-full border-2 border-white" />
-            </motion.div>
-            <div className="flex flex-col text-left">
-              <span className="text-base font-black tracking-tight text-[#d91438] leading-none">
-                Elsewedy
-              </span>
-              <span className="text-xs font-bold tracking-tight text-slate-700 leading-tight mt-0.5">
-                Student Portal
-              </span>
+          <div className="p-6 border-b border-slate-100 dark:border-white/10 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <motion.div
+                whileHover={{ rotate: 12, scale: 1.05 }}
+                transition={{ type: "spring", stiffness: 300 }}
+                className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#d91438] to-[#ff2b54] flex items-center justify-center shadow-md shadow-red-900/20 cursor-pointer"
+              >
+                <div className="w-4 h-4 rounded-full border-2 border-white" />
+              </motion.div>
+              <div className="flex flex-col text-left">
+                <span className="text-base font-black tracking-tight text-[#d91438] leading-none">
+                  Elsewedy
+                </span>
+                <span className="text-xs font-bold tracking-tight text-slate-700 dark:text-neutral-200 leading-tight mt-0.5">
+                  Student Portal
+                </span>
+              </div>
             </div>
+
+            {/* Quick Dark Mode Toggle in Sidebar Header */}
+            <ThemeToggle className="lg:hidden" />
           </div>
 
           {/* Student Profile Quick Badge */}
-          <div className="p-4 mx-3 my-3 rounded-xl bg-slate-50 border border-slate-100 text-left">
+          <div className="p-4 mx-3 my-3 rounded-xl bg-slate-50 dark:bg-white/[0.04] border border-slate-100 dark:border-white/10 text-left">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-full bg-[#d91438]/10 text-[#d91438] font-bold text-xs flex items-center justify-center shrink-0 border border-[#d91438]/20">
+              <div className="w-8 h-8 rounded-full bg-[#d91438]/10 text-[#d91438] dark:text-[#ff4d6a] font-bold text-xs flex items-center justify-center shrink-0 border border-[#d91438]/20">
                 {studentName.charAt(0).toUpperCase()}
               </div>
               <div className="truncate">
-                <p className="text-xs font-bold text-slate-900 truncate">{studentName}</p>
-                <p className="text-[10px] text-slate-500 font-semibold">{studentClass}</p>
+                <p className="text-xs font-bold text-slate-900 dark:text-white truncate">{studentName}</p>
+                <p className="text-[10px] text-slate-500 dark:text-neutral-400 font-semibold">{studentClass}</p>
               </div>
             </div>
           </div>
@@ -460,13 +467,13 @@ export default function StudentDashboardPage() {
                   className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-xl font-semibold text-sm transition-all duration-150 cursor-pointer text-left ${
                     isActive
                       ? "bg-[#d91438] text-white shadow-md shadow-red-600/30 font-bold"
-                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                      : "text-slate-600 dark:text-neutral-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/5"
                   }`}
                 >
                   <Icon className="w-5 h-5 shrink-0" />
                   <div className="flex flex-col">
                     <span>{item.name}</span>
-                    <span className={`text-[10px] ${isActive ? "text-red-100" : "text-slate-400"}`}>
+                    <span className={`text-[10px] ${isActive ? "text-red-100" : "text-slate-400 dark:text-neutral-500"}`}>
                       {item.label}
                     </span>
                   </div>
@@ -476,13 +483,23 @@ export default function StudentDashboardPage() {
           </nav>
         </div>
 
-        {/* Bottom Log Out Button */}
-        <div className="p-4 border-t border-slate-100">
+        {/* Bottom Theme Toggle and Log Out Button */}
+        <div className="p-4 border-t border-slate-100 dark:border-white/10 space-y-2">
+          {/* Theme Switcher Row in Sidebar */}
+          <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-100 dark:border-white/10 text-xs font-bold text-slate-600 dark:text-neutral-300">
+            <span className="flex items-center gap-2">
+              <Sun className="w-4 h-4 text-amber-500 dark:hidden" />
+              <Moon className="w-4 h-4 text-indigo-400 hidden dark:block" />
+              <span>Theme Mode</span>
+            </span>
+            <ThemeToggle />
+          </div>
+
           <motion.button
             whileHover={{ x: 2 }}
             whileTap={{ scale: 0.97 }}
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-[#d91438] hover:bg-red-50/80 transition-colors cursor-pointer"
+            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl font-bold text-sm text-[#d91438] dark:text-[#ff4d6a] hover:bg-red-50/80 dark:hover:bg-red-950/30 transition-colors cursor-pointer"
           >
             <LogOut className="w-5 h-5" />
             <span>Log Out</span>
@@ -494,21 +511,26 @@ export default function StudentDashboardPage() {
       {/* MAIN CONTENT AREA                                                         */}
       {/* ========================================================================= */}
       <main className="flex-1 p-8 lg:p-10 max-w-7xl overflow-y-auto">
-        {/* Role Pill Badge */}
+        {/* Top Header Controls with Role Badge & Theme Switcher */}
         <div className="flex items-center justify-between gap-4 mb-3">
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
-            className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-red-50 text-[#d91438] border border-red-200/60 text-xs font-bold tracking-wide uppercase shadow-xs"
+            className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-red-50 dark:bg-red-950/40 text-[#d91438] dark:text-[#ff4d6a] border border-red-200/60 dark:border-red-900/40 text-xs font-bold tracking-wide uppercase shadow-xs"
           >
             <span className="w-2 h-2 rounded-full bg-[#d91438] animate-pulse" />
             STUDENT PROFILE & ACADEMIC DOSSIER
           </motion.div>
 
-          <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-2xs">
-            <GraduationCap className="w-4 h-4 text-[#d91438]" />
-            <span>{studentYear} · {studentClass}</span>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 text-xs font-semibold text-slate-600 dark:text-neutral-300 bg-white dark:bg-[#111118] px-3.5 py-1.5 rounded-xl border border-slate-200 dark:border-white/10 shadow-2xs">
+              <GraduationCap className="w-4 h-4 text-[#d91438] dark:text-[#ff4d6a]" />
+              <span>{studentYear} · {studentClass}</span>
+            </div>
+
+            {/* Top Bar Theme Toggle */}
+            <ThemeToggle className="shadow-xs" />
           </div>
         </div>
 
@@ -519,9 +541,9 @@ export default function StudentDashboardPage() {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="flex flex-wrap items-center gap-3 mb-2"
         >
-          <h1 className="text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">
+          <h1 className="text-3xl lg:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
             Welcome,{" "}
-            <span className="border-2 border-[#d91438] rounded-xl px-3 py-0.5 text-slate-900 bg-white shadow-xs inline-block">
+            <span className="border-2 border-[#d91438] rounded-xl px-3 py-0.5 text-slate-900 dark:text-white bg-white dark:bg-[#111118] shadow-xs inline-block">
               {studentName}
             </span>
           </h1>
@@ -544,7 +566,7 @@ export default function StudentDashboardPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="text-slate-500 text-sm mb-8 font-medium"
+          className="text-slate-500 dark:text-neutral-400 text-sm mb-8 font-medium"
         >
           Elsewedy Technical Academy · Continuous Competency Evaluation & Capstone Tracking
         </motion.p>
@@ -556,56 +578,56 @@ export default function StudentDashboardPage() {
           <div className="space-y-8 animate-in fade-in-50 duration-300">
             {/* Top Metric Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              <div className="bg-white dark:bg-[#111118] rounded-2xl p-5 border border-slate-200/80 dark:border-white/10 shadow-xs flex flex-col justify-between">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-neutral-400">
                   Overall Score
                 </span>
                 <div className="flex items-baseline justify-between mt-2">
-                  <span className="text-3xl font-extrabold text-[#d91438]">{overallAverage}%</span>
-                  <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                  <span className="text-3xl font-extrabold text-[#d91438] dark:text-[#ff4d6a]">{overallAverage}%</span>
+                  <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-900/30">
                     Distinction
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-400 mt-2">Weighted average across modules</p>
+                <p className="text-[11px] text-slate-400 dark:text-neutral-500 mt-2">Weighted average across modules</p>
               </div>
 
-              <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              <div className="bg-white dark:bg-[#111118] rounded-2xl p-5 border border-slate-200/80 dark:border-white/10 shadow-xs flex flex-col justify-between">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-neutral-400">
                   Competencies Passed
                 </span>
                 <div className="flex items-baseline justify-between mt-2">
-                  <span className="text-3xl font-extrabold text-slate-900">4 / 5</span>
-                  <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">
+                  <span className="text-3xl font-extrabold text-slate-900 dark:text-white">4 / 5</span>
+                  <span className="text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 px-2 py-0.5 rounded-full border border-blue-200 dark:border-blue-900/30">
                     80% Cleared
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-400 mt-2">1 module currently active</p>
+                <p className="text-[11px] text-slate-400 dark:text-neutral-500 mt-2">1 module currently active</p>
               </div>
 
-              <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              <div className="bg-white dark:bg-[#111118] rounded-2xl p-5 border border-slate-200/80 dark:border-white/10 shadow-xs flex flex-col justify-between">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-neutral-400">
                   Deliverables Status
                 </span>
                 <div className="flex items-baseline justify-between mt-2">
-                  <span className="text-3xl font-extrabold text-slate-900">7 / 9</span>
-                  <span className="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                  <span className="text-3xl font-extrabold text-slate-900 dark:text-white">7 / 9</span>
+                  <span className="text-xs font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded-full border border-amber-200 dark:border-amber-900/30">
                     78% Done
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-400 mt-2">2 pending tasks in cycle</p>
+                <p className="text-[11px] text-slate-400 dark:text-neutral-500 mt-2">2 pending tasks in cycle</p>
               </div>
 
-              <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              <div className="bg-white dark:bg-[#111118] rounded-2xl p-5 border border-slate-200/80 dark:border-white/10 shadow-xs flex flex-col justify-between">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-neutral-400">
                   Academic Standing
                 </span>
                 <div className="flex items-baseline justify-between mt-2">
-                  <span className="text-3xl font-extrabold text-emerald-600">Rank #2</span>
-                  <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                  <span className="text-3xl font-extrabold text-emerald-600 dark:text-emerald-400">Rank #2</span>
+                  <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-900/30">
                     Top 5%
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-400 mt-2">Within {studentClass}</p>
+                <p className="text-[11px] text-slate-400 dark:text-neutral-500 mt-2">Within {studentClass}</p>
               </div>
             </div>
 
@@ -614,14 +636,14 @@ export default function StudentDashboardPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.25 }}
-              className="bg-white rounded-2xl p-6 lg:p-8 border border-slate-200/70 shadow-[0_4px_24px_rgba(0,0,0,0.03)]"
+              className="bg-white dark:bg-[#111118] rounded-2xl p-6 lg:p-8 border border-slate-200/70 dark:border-white/10 shadow-[0_4px_24px_rgba(0,0,0,0.03)]"
             >
               <div className="mb-4 flex items-center justify-between">
                 <div>
-                  <h2 className="text-xl font-bold text-slate-900 tracking-tight">
+                  <h2 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
                     Capstone Deliverables Time Manager
                   </h2>
-                  <p className="text-xs font-semibold text-slate-400 mt-0.5">
+                  <p className="text-xs font-semibold text-slate-400 dark:text-neutral-400 mt-0.5">
                     Your semester milestones progress
                   </p>
                 </div>
@@ -629,7 +651,7 @@ export default function StudentDashboardPage() {
                   size="sm"
                   variant="outline"
                   onClick={() => setActiveNav("Tasks")}
-                  className="text-xs font-bold h-8 rounded-lg"
+                  className="text-xs font-bold h-8 rounded-lg border-slate-200 dark:border-white/10 bg-transparent text-slate-700 dark:text-neutral-200"
                 >
                   View All Tasks
                 </Button>
@@ -637,7 +659,7 @@ export default function StudentDashboardPage() {
 
               <div className="space-y-3">
                 <div className="flex items-center gap-4">
-                  <div className="flex-1 bg-slate-100 rounded-full h-3 overflow-hidden shadow-inner">
+                  <div className="flex-1 bg-slate-100 dark:bg-white/10 rounded-full h-3 overflow-hidden shadow-inner">
                     <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: "78%" }}
@@ -645,12 +667,12 @@ export default function StudentDashboardPage() {
                       className="bg-gradient-to-r from-[#d91438] to-[#ff2b54] h-full rounded-full shadow-[0_0_12px_rgba(217,20,56,0.5)]"
                     />
                   </div>
-                  <span className="text-sm font-bold text-[#d91438] shrink-0 font-mono">
+                  <span className="text-sm font-bold text-[#d91438] dark:text-[#ff4d6a] shrink-0 font-mono">
                     78% submitted
                   </span>
                 </div>
                 <div className="text-center pt-1">
-                  <span className="text-xs font-semibold text-slate-500">
+                  <span className="text-xs font-semibold text-slate-500 dark:text-neutral-400">
                     7 of 9 capstone deliverables submitted & verified
                   </span>
                 </div>
@@ -659,45 +681,45 @@ export default function StudentDashboardPage() {
 
             {/* Quick Action Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <div className="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-6 rounded-2xl border border-slate-700 shadow-md flex flex-col justify-between">
+              <div className="bg-gradient-to-br from-slate-900 to-slate-800 dark:from-[#14141e] dark:to-[#0f0f16] text-white p-6 rounded-2xl border border-slate-700 dark:border-white/10 shadow-md flex flex-col justify-between">
                 <div>
                   <span className="text-[10px] font-bold uppercase tracking-wider text-red-400 bg-red-950/60 px-2.5 py-1 rounded-full border border-red-800/60 inline-block mb-3">
                     Active Assessment Round
                   </span>
                   <h3 className="text-lg font-bold">Industrial IoT & Hardware Telemetry</h3>
-                  <p className="text-xs text-slate-300 mt-1 leading-relaxed">
+                  <p className="text-xs text-slate-300 dark:text-neutral-300 mt-1 leading-relaxed">
                     Round 4 assessment is currently open. Ensure your MQTT telemetry brokers and hardware logs are uploaded before the cutoff.
                   </p>
                 </div>
-                <div className="mt-6 flex items-center justify-between pt-4 border-t border-slate-700/60">
+                <div className="mt-6 flex items-center justify-between pt-4 border-t border-slate-700/60 dark:border-white/10">
                   <span className="text-xs font-mono text-amber-300 font-semibold">4 Days Remaining</span>
                   <Button
                     size="sm"
                     onClick={() => setActiveNav("Competencies & Grades")}
-                    className="bg-[#d91438] hover:bg-[#b80f2d] text-white text-xs font-bold rounded-lg"
+                    className="bg-[#d91438] hover:bg-[#b80f2d] text-white text-xs font-bold rounded-lg shadow-sm"
                   >
                     View Rubric
                   </Button>
                 </div>
               </div>
 
-              <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+              <div className="bg-white dark:bg-[#111118] p-6 rounded-2xl border border-slate-200/80 dark:border-white/10 shadow-xs flex flex-col justify-between">
                 <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 inline-block mb-3">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-full border border-emerald-200 dark:border-emerald-900/30 inline-block mb-3">
                     Latest Assessment Feedback
                   </span>
-                  <h3 className="text-lg font-bold text-slate-900">Enterprise C# & .NET Core Backend</h3>
-                  <p className="text-xs text-slate-600 mt-1 leading-relaxed italic">
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">Enterprise C# & .NET Core Backend</h3>
+                  <p className="text-xs text-slate-600 dark:text-neutral-300 mt-1 leading-relaxed italic">
                     "Second attempt cleared with distinction (88%). Clean separation between Domain models and EF Core entities achieved."
                   </p>
                 </div>
-                <div className="mt-6 flex items-center justify-between pt-4 border-t border-slate-100">
-                  <span className="text-xs text-slate-400 font-medium">Assessor: Eng. Ahmed Tarek</span>
+                <div className="mt-6 flex items-center justify-between pt-4 border-t border-slate-100 dark:border-white/10">
+                  <span className="text-xs text-slate-400 dark:text-neutral-500 font-medium">Assessor: Eng. Ahmed Tarek</span>
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={() => setActiveNav("Competencies Timeline")}
-                    className="text-xs font-bold rounded-lg text-slate-700"
+                    className="text-xs font-bold rounded-lg border-slate-200 dark:border-white/10 bg-transparent text-slate-700 dark:text-neutral-200"
                   >
                     View Timeline
                   </Button>
@@ -712,24 +734,24 @@ export default function StudentDashboardPage() {
         {/* ========================================================================= */}
         {activeNav === "Competencies & Grades" && (
           <div className="space-y-6 animate-in fade-in-50 duration-300">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-[#111118] p-6 rounded-2xl border border-slate-200/80 dark:border-white/10 shadow-xs">
               <div>
-                <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
+                <h2 className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                   Competencies, Attempts & Grade History
                 </h2>
-                <p className="text-xs text-slate-500 mt-0.5 font-medium">
+                <p className="text-xs text-slate-500 dark:text-neutral-400 mt-0.5 font-medium">
                   Complete breakdown of candidate attempts, rubric criteria scores, and assessor notes
                 </p>
               </div>
 
               {/* Filter */}
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-slate-500">Filter:</span>
+                <span className="text-xs font-bold text-slate-500 dark:text-neutral-400">Filter:</span>
                 <select
                   aria-label="Filter competencies by discipline"
                   value={filterCategory}
                   onChange={(e) => setFilterCategory(e.target.value)}
-                  className="text-xs font-semibold bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-slate-700 outline-none focus:border-[#d91438]"
+                  className="text-xs font-semibold bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg px-3 py-1.5 text-slate-700 dark:text-neutral-200 outline-none focus:border-[#d91438]"
                 >
                   <option value="All">All Disciplines</option>
                   <option value="Software Engineering">Software Engineering</option>
@@ -753,28 +775,28 @@ export default function StudentDashboardPage() {
                     key={comp.id}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 hover:shadow-md transition-shadow"
+                    className="bg-white dark:bg-[#111118] rounded-2xl border border-slate-200/80 dark:border-white/10 shadow-xs p-6 hover:shadow-md transition-all"
                   >
-                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-white/10">
                       <div className="flex items-start gap-3.5">
-                        <div className="w-12 h-12 rounded-xl bg-red-50 text-[#d91438] border border-red-100 flex items-center justify-center shrink-0 font-bold text-base">
+                        <div className="w-12 h-12 rounded-xl bg-red-50 dark:bg-red-950/40 text-[#d91438] dark:text-[#ff4d6a] border border-red-100 dark:border-red-900/30 flex items-center justify-center shrink-0 font-bold text-base">
                           <BookOpen className="w-6 h-6" />
                         </div>
                         <div>
                           <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider">
+                            <span className="text-[10px] font-mono font-bold text-slate-400 dark:text-neutral-500 uppercase tracking-wider">
                               {comp.code}
                             </span>
-                            <span className="text-[10px] font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full">
+                            <span className="text-[10px] font-bold text-slate-600 dark:text-neutral-300 bg-slate-100 dark:bg-white/5 px-2 py-0.5 rounded-full">
                               {comp.category}
                             </span>
                             {hasRetake && (
-                              <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                              <span className="text-[10px] font-bold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded-full border border-amber-200 dark:border-amber-900/30">
                                 2 Attempts Recorded
                               </span>
                             )}
                           </div>
-                          <h3 className="text-lg font-bold text-slate-900 mt-1">
+                          <h3 className="text-lg font-bold text-slate-900 dark:text-white mt-1">
                             {comp.name}
                           </h3>
                         </div>
@@ -783,15 +805,15 @@ export default function StudentDashboardPage() {
                       {/* Score Badge */}
                       <div className="flex items-center gap-4">
                         <div className="text-right">
-                          <span className="text-[10px] uppercase font-bold text-slate-400 block">
+                          <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-neutral-500 block">
                             Final Score
                           </span>
                           <span className={`text-2xl font-black font-mono ${
                             comp.totalScore >= 90
-                              ? "text-emerald-600"
+                              ? "text-emerald-600 dark:text-emerald-400"
                               : comp.totalScore >= 75
-                                ? "text-slate-900"
-                                : "text-amber-600"
+                                ? "text-slate-900 dark:text-white"
+                                : "text-amber-600 dark:text-amber-400"
                           }`}>
                             {comp.totalScore}%
                           </span>
@@ -799,8 +821,8 @@ export default function StudentDashboardPage() {
                         <span
                           className={`px-3 py-1 rounded-full text-xs font-bold border ${
                             isPassed
-                              ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                              : "bg-blue-50 text-blue-700 border-blue-200"
+                              ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900/30"
+                              : "bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-900/30"
                           }`}
                         >
                           {comp.status}
@@ -810,21 +832,21 @@ export default function StudentDashboardPage() {
 
                     {/* Criteria Breakdown */}
                     <div className="py-4">
-                      <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-neutral-400 mb-3">
                         Rubric Criteria Breakdown
                       </h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
                         {comp.criteria.map((cr, idx) => (
                           <div
                             key={idx}
-                            className="bg-slate-50 p-3 rounded-xl border border-slate-100 flex flex-col justify-between"
+                            className="bg-slate-50 dark:bg-white/[0.03] p-3 rounded-xl border border-slate-100 dark:border-white/10 flex flex-col justify-between"
                           >
-                            <span className="text-xs font-semibold text-slate-700 line-clamp-1">
+                            <span className="text-xs font-semibold text-slate-700 dark:text-neutral-300 line-clamp-1">
                               {cr.name}
                             </span>
-                            <div className="flex items-center justify-between mt-2 pt-1 border-t border-slate-200/50">
-                              <span className="text-[10px] text-slate-400 font-medium">Earned / Max</span>
-                              <span className="text-xs font-bold text-slate-900 font-mono">
+                            <div className="flex items-center justify-between mt-2 pt-1 border-t border-slate-200/50 dark:border-white/5">
+                              <span className="text-[10px] text-slate-400 dark:text-neutral-500 font-medium">Earned / Max</span>
+                              <span className="text-xs font-bold text-slate-900 dark:text-white font-mono">
                                 {cr.earned} / {cr.max}
                               </span>
                             </div>
@@ -834,44 +856,44 @@ export default function StudentDashboardPage() {
                     </div>
 
                     {/* Attempts History */}
-                    <div className="pt-4 border-t border-slate-100">
-                      <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-1.5">
-                        <Clock className="w-3.5 h-3.5 text-[#d91438]" />
+                    <div className="pt-4 border-t border-slate-100 dark:border-white/10">
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-neutral-400 mb-3 flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5 text-[#d91438] dark:text-[#ff4d6a]" />
                         Attempt History & Assessor Audit
                       </h4>
                       <div className="space-y-2.5">
                         {comp.attempts.map((att, aIdx) => (
                           <div
                             key={aIdx}
-                            className="p-3.5 rounded-xl bg-slate-50/70 border border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
+                            className="p-3.5 rounded-xl bg-slate-50/70 dark:bg-white/[0.02] border border-slate-100 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
                           >
                             <div className="space-y-1">
                               <div className="flex items-center gap-2">
-                                <span className="font-bold text-slate-900">
+                                <span className="font-bold text-slate-900 dark:text-white">
                                   Attempt #{att.attemptNumber}
                                 </span>
-                                <span className="text-slate-400">·</span>
-                                <span className="text-slate-500 font-medium">{att.date}</span>
+                                <span className="text-slate-400 dark:text-neutral-600">·</span>
+                                <span className="text-slate-500 dark:text-neutral-400 font-medium">{att.date}</span>
                                 <span
                                   className={`px-2 py-0.5 rounded text-[10px] font-bold ${
                                     att.status === "Pass"
-                                      ? "bg-emerald-100 text-emerald-800"
+                                      ? "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300"
                                       : att.status === "Retake Required"
-                                        ? "bg-red-100 text-red-800"
-                                        : "bg-blue-100 text-blue-800"
+                                        ? "bg-red-100 dark:bg-red-950/60 text-red-800 dark:text-red-300"
+                                        : "bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300"
                                   }`}
                                 >
                                   {att.status}
                                 </span>
                               </div>
-                              <p className="text-slate-600 italic">"{att.remarks}"</p>
-                              <p className="text-[11px] text-slate-400 font-medium">
+                              <p className="text-slate-600 dark:text-neutral-300 italic">"{att.remarks}"</p>
+                              <p className="text-[11px] text-slate-400 dark:text-neutral-500 font-medium">
                                 Assessed by: {att.assessor} | QA: {att.verifier}
                               </p>
                             </div>
 
                             <div className="text-right shrink-0">
-                              <span className="font-mono font-extrabold text-sm text-slate-900">
+                              <span className="font-mono font-extrabold text-sm text-slate-900 dark:text-white">
                                 {att.score}%
                               </span>
                             </div>
@@ -891,17 +913,17 @@ export default function StudentDashboardPage() {
         {/* ========================================================================= */}
         {activeNav === "Competencies Timeline" && (
           <div className="space-y-6 animate-in fade-in-50 duration-300">
-            <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs">
-              <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
+            <div className="bg-white dark:bg-[#111118] p-6 rounded-2xl border border-slate-200/80 dark:border-white/10 shadow-xs">
+              <h2 className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                 Academic Competencies Timeline
               </h2>
-              <p className="text-xs text-slate-500 mt-0.5 font-medium">
+              <p className="text-xs text-slate-500 dark:text-neutral-400 mt-0.5 font-medium">
                 Progression map tracking previous verified modules, active assessment cycles, and future curriculum milestones
               </p>
             </div>
 
             {/* Visual Timeline Stream */}
-            <div className="relative pl-6 sm:pl-8 border-l-2 border-red-200 space-y-8 my-6 ml-3">
+            <div className="relative pl-6 sm:pl-8 border-l-2 border-red-200 dark:border-red-950/80 space-y-8 my-6 ml-3">
               {SEEDED_TIMELINE.map((item, index) => {
                 const isCompleted = item.status === "Completed";
                 const isInProgress = item.status === "In Progress";
@@ -917,12 +939,12 @@ export default function StudentDashboardPage() {
                   >
                     {/* Circle Node on Timeline */}
                     <div
-                      className={`absolute -left-[31px] sm:-left-[39px] top-1.5 w-7 h-7 rounded-full border-4 border-white flex items-center justify-center shadow-xs ${
+                      className={`absolute -left-[31px] sm:-left-[39px] top-1.5 w-7 h-7 rounded-full border-4 border-white dark:border-[#07070a] flex items-center justify-center shadow-xs ${
                         isCompleted
                           ? "bg-emerald-500 text-white"
                           : isInProgress
                             ? "bg-[#d91438] text-white animate-pulse"
-                            : "bg-slate-300 text-white"
+                            : "bg-slate-300 dark:bg-neutral-700 text-white"
                       }`}
                     >
                       {isCompleted ? (
@@ -935,16 +957,16 @@ export default function StudentDashboardPage() {
                     </div>
 
                     {/* Timeline Content Card */}
-                    <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md transition-shadow">
+                    <div className="bg-white dark:bg-[#111118] p-6 rounded-2xl border border-slate-200/80 dark:border-white/10 shadow-xs hover:shadow-md transition-all">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-2">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-xs font-bold text-[#d91438] bg-red-50 px-2.5 py-0.5 rounded-full border border-red-100">
+                          <span className="text-xs font-bold text-[#d91438] dark:text-[#ff4d6a] bg-red-50 dark:bg-red-950/40 px-2.5 py-0.5 rounded-full border border-red-100 dark:border-red-900/30">
                             Cycle Round {item.roundNumber}
                           </span>
-                          <span className="text-xs font-semibold text-slate-400">
+                          <span className="text-xs font-semibold text-slate-400 dark:text-neutral-500">
                             {item.startDate} — {item.endDate}
                           </span>
-                          <span className="text-xs font-semibold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full">
+                          <span className="text-xs font-semibold text-slate-600 dark:text-neutral-300 bg-slate-100 dark:bg-white/5 px-2 py-0.5 rounded-full">
                             {item.category}
                           </span>
                         </div>
@@ -952,17 +974,17 @@ export default function StudentDashboardPage() {
                         {/* Status Badge */}
                         <div className="flex items-center gap-2 shrink-0">
                           {item.grade !== undefined && (
-                            <span className="text-sm font-black font-mono text-slate-900 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200">
+                            <span className="text-sm font-black font-mono text-slate-900 dark:text-white bg-slate-50 dark:bg-white/5 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-white/10">
                               {item.grade}%
                             </span>
                           )}
                           <span
                             className={`px-3 py-1 rounded-full text-xs font-bold border ${
                               isCompleted
-                                ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                                ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900/30"
                                 : isInProgress
-                                  ? "bg-red-50 text-[#d91438] border-red-200"
-                                  : "bg-slate-50 text-slate-600 border-slate-200"
+                                  ? "bg-red-50 dark:bg-red-950/40 text-[#d91438] dark:text-[#ff4d6a] border-red-200 dark:border-red-900/30"
+                                  : "bg-slate-50 dark:bg-white/5 text-slate-600 dark:text-neutral-400 border-slate-200 dark:border-white/10"
                             }`}
                           >
                             {item.status}
@@ -970,20 +992,20 @@ export default function StudentDashboardPage() {
                         </div>
                       </div>
 
-                      <h3 className="text-base font-bold text-slate-900 mb-1">
+                      <h3 className="text-base font-bold text-slate-900 dark:text-white mb-1">
                         {item.name}
                       </h3>
-                      <p className="text-xs text-slate-600 leading-relaxed mb-4">
+                      <p className="text-xs text-slate-600 dark:text-neutral-300 leading-relaxed mb-4">
                         {item.description}
                       </p>
 
-                      <div className="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-400 font-medium">
+                      <div className="pt-3 border-t border-slate-100 dark:border-white/10 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-400 dark:text-neutral-500 font-medium">
                         <div>
                           <span>Faculty Assessor: {item.assessor}</span>
                           <span className="mx-2">·</span>
                           <span>Verifier: {item.verifier}</span>
                         </div>
-                        <span className="text-[#d91438] font-bold">
+                        <span className="text-[#d91438] dark:text-[#ff4d6a] font-bold">
                           {item.milestone}
                         </span>
                       </div>
@@ -1002,14 +1024,14 @@ export default function StudentDashboardPage() {
           <div className="space-y-6 animate-in fade-in-50 duration-300">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+                <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                   Capstone Tasks & Deliverables
                 </h2>
-                <p className="text-xs text-slate-500 font-medium mt-0.5">
+                <p className="text-xs text-slate-500 dark:text-neutral-400 font-medium mt-0.5">
                   Submissions, Google Classroom deliverables, and deadline tracking
                 </p>
               </div>
-              <span className="text-xs font-semibold text-slate-400 bg-white px-3 py-1 rounded-full border border-slate-200">
+              <span className="text-xs font-semibold text-slate-400 dark:text-neutral-400 bg-white dark:bg-[#111118] px-3 py-1 rounded-full border border-slate-200 dark:border-white/10">
                 9 Total Deliverables
               </span>
             </div>
@@ -1031,10 +1053,10 @@ export default function StudentDashboardPage() {
                 const isLate = task.status === "COMPLETED LATE";
 
                 const badgeBg = isPending
-                  ? "bg-amber-50 text-amber-700 border-amber-200"
+                  ? "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-900/30"
                   : isLate
-                    ? "bg-amber-100/80 text-amber-800 border-amber-300"
-                    : "bg-emerald-50 text-emerald-700 border-emerald-200";
+                    ? "bg-amber-100/80 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-800/40"
+                    : "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900/30";
 
                 return (
                   <motion.div
@@ -1051,11 +1073,11 @@ export default function StudentDashboardPage() {
                       y: -4,
                       boxShadow: "0 12px 30px -8px rgba(0,0,0,0.08)",
                     }}
-                    className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between text-left group"
+                    className="bg-white dark:bg-[#111118] rounded-2xl p-5 border border-slate-200/80 dark:border-white/10 shadow-xs flex flex-col justify-between text-left group"
                   >
                     <div>
                       <div className="flex items-start justify-between gap-3 mb-2.5">
-                        <h3 className="text-base font-bold text-slate-900 group-hover:text-[#d91438] transition-colors leading-snug">
+                        <h3 className="text-base font-bold text-slate-900 dark:text-white group-hover:text-[#d91438] dark:group-hover:text-[#ff4d6a] transition-colors leading-snug">
                           {task.name}
                         </h3>
                         <span
@@ -1065,13 +1087,13 @@ export default function StudentDashboardPage() {
                           {task.status}
                         </span>
                       </div>
-                      <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed mb-6 font-normal">
+                      <p className="text-xs text-slate-500 dark:text-neutral-400 line-clamp-2 leading-relaxed mb-6 font-normal">
                         {task.description}
                       </p>
                     </div>
 
-                    <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
-                      <span className="text-[11px] text-slate-400 font-medium truncate">
+                    <div className="pt-3 border-t border-slate-100 dark:border-white/10 flex items-center justify-between gap-3">
+                      <span className="text-[11px] text-slate-400 dark:text-neutral-500 font-medium truncate">
                         {task.deadline}
                       </span>
                       <Button
@@ -1094,12 +1116,12 @@ export default function StudentDashboardPage() {
         {/* ========================================================================= */}
         {activeNav === "Reports" && (
           <div className="space-y-6 animate-in fade-in-50 duration-300">
-            <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="bg-white dark:bg-[#111118] p-6 rounded-2xl border border-slate-200/80 dark:border-white/10 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
+                <h2 className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                   Academic Transcript & Official Performance Record
                 </h2>
-                <p className="text-xs text-slate-500 mt-0.5 font-medium">
+                <p className="text-xs text-slate-500 dark:text-neutral-400 mt-0.5 font-medium">
                   Verified assessment marks and competency certificates authenticated by Elsewedy Examination Board
                 </p>
               </div>
@@ -1123,49 +1145,49 @@ export default function StudentDashboardPage() {
             </div>
 
             {/* Official Report Card Mockup */}
-            <div className="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm max-w-4xl mx-auto space-y-6">
+            <div className="bg-white dark:bg-[#0c0c12] rounded-3xl border border-slate-200 dark:border-white/10 p-8 shadow-sm max-w-4xl mx-auto space-y-6">
               {/* Header */}
-              <div className="flex items-center justify-between border-b pb-6">
+              <div className="flex items-center justify-between border-b border-slate-100 dark:border-white/10 pb-6">
                 <div>
-                  <h3 className="text-lg font-black tracking-tight text-[#d91438]">
+                  <h3 className="text-lg font-black tracking-tight text-[#d91438] dark:text-[#ff4d6a]">
                     ELSEWEDY TECHNICAL ACADEMY
                   </h3>
-                  <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">
+                  <p className="text-xs text-slate-400 dark:text-neutral-400 font-semibold uppercase tracking-wider">
                     Office of the Registrar & Quality Assurance
                   </p>
                 </div>
                 <div className="text-right">
-                  <span className="text-xs font-mono font-bold text-slate-700">DATE: OCT 2026</span>
-                  <p className="text-[10px] text-emerald-600 font-bold uppercase tracking-wider">
+                  <span className="text-xs font-mono font-bold text-slate-700 dark:text-neutral-300">DATE: OCT 2026</span>
+                  <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold uppercase tracking-wider">
                     STATUS: AUDIT VERIFIED
                   </p>
                 </div>
               </div>
 
               {/* Student Details Grid */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100 text-xs">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-white/[0.03] border border-slate-100 dark:border-white/10 text-xs">
                 <div>
-                  <span className="text-slate-400 font-medium">Candidate:</span>
-                  <p className="font-bold text-slate-900 mt-0.5">{studentName}</p>
+                  <span className="text-slate-400 dark:text-neutral-500 font-medium">Candidate:</span>
+                  <p className="font-bold text-slate-900 dark:text-white mt-0.5">{studentName}</p>
                 </div>
                 <div>
-                  <span className="text-slate-400 font-medium">Academic Year:</span>
-                  <p className="font-bold text-slate-900 mt-0.5">Year 3 - Cohort 2026</p>
+                  <span className="text-slate-400 dark:text-neutral-500 font-medium">Academic Year:</span>
+                  <p className="font-bold text-slate-900 dark:text-white mt-0.5">Year 3 - Cohort 2026</p>
                 </div>
                 <div>
-                  <span className="text-slate-400 font-medium">Cohort Class:</span>
-                  <p className="font-bold text-slate-900 mt-0.5">{studentClass}</p>
+                  <span className="text-slate-400 dark:text-neutral-500 font-medium">Cohort Class:</span>
+                  <p className="font-bold text-slate-900 dark:text-white mt-0.5">{studentClass}</p>
                 </div>
                 <div>
-                  <span className="text-slate-400 font-medium">Cumulative GPA:</span>
-                  <p className="font-bold text-[#d91438] mt-0.5 text-sm">{overallAverage}% (3.84 / 4.0)</p>
+                  <span className="text-slate-400 dark:text-neutral-500 font-medium">Cumulative GPA:</span>
+                  <p className="font-bold text-[#d91438] dark:text-[#ff4d6a] mt-0.5 text-sm">{overallAverage}% (3.84 / 4.0)</p>
                 </div>
               </div>
 
               {/* Competencies Table */}
               <div className="overflow-x-auto">
                 <table className="w-full text-xs text-left">
-                  <thead className="border-b text-slate-400 uppercase text-[10px] font-bold">
+                  <thead className="border-b border-slate-100 dark:border-white/10 text-slate-400 dark:text-neutral-500 uppercase text-[10px] font-bold">
                     <tr>
                       <th className="py-2.5">Code</th>
                       <th className="py-2.5">Competency Module</th>
@@ -1174,18 +1196,18 @@ export default function StudentDashboardPage() {
                       <th className="py-2.5 text-right">Result</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
+                  <tbody className="divide-y divide-slate-100 dark:divide-white/10 font-medium text-slate-700 dark:text-neutral-300">
                     {SEEDED_COMPETENCIES.map((comp) => (
-                      <tr key={comp.id} className="hover:bg-slate-50/50">
-                        <td className="py-3 font-mono font-bold text-slate-500">{comp.code}</td>
-                        <td className="py-3 font-bold text-slate-900">{comp.name}</td>
+                      <tr key={comp.id} className="hover:bg-slate-50/50 dark:hover:bg-white/[0.02]">
+                        <td className="py-3 font-mono font-bold text-slate-500 dark:text-neutral-400">{comp.code}</td>
+                        <td className="py-3 font-bold text-slate-900 dark:text-white">{comp.name}</td>
                         <td className="py-3 text-center">{comp.attempts.length}</td>
-                        <td className="py-3 text-center font-mono font-bold text-slate-900">{comp.totalScore}%</td>
+                        <td className="py-3 text-center font-mono font-bold text-slate-900 dark:text-white">{comp.totalScore}%</td>
                         <td className="py-3 text-right">
                           <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
                             comp.status.startsWith("Passed")
-                              ? "bg-emerald-50 text-emerald-700"
-                              : "bg-blue-50 text-blue-700"
+                              ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400"
+                              : "bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400"
                           }`}>
                             {comp.status}
                           </span>
@@ -1197,13 +1219,13 @@ export default function StudentDashboardPage() {
               </div>
 
               {/* Signatures */}
-              <div className="pt-6 border-t flex items-center justify-between text-xs text-slate-400">
+              <div className="pt-6 border-t border-slate-100 dark:border-white/10 flex items-center justify-between text-xs text-slate-400 dark:text-neutral-500">
                 <div>
-                  <p className="font-bold text-slate-700">Head of Examination Committee</p>
+                  <p className="font-bold text-slate-700 dark:text-neutral-300">Head of Examination Committee</p>
                   <p className="text-[10px] mt-1">Dr. Tarek Examination Board</p>
                 </div>
                 <div className="text-right">
-                  <p className="font-bold text-slate-700">Lead QA Verifier</p>
+                  <p className="font-bold text-slate-700 dark:text-neutral-300">Lead QA Verifier</p>
                   <p className="text-[10px] mt-1">Dr. Mostafa Verification Dept</p>
                 </div>
               </div>
@@ -1221,20 +1243,20 @@ export default function StudentDashboardPage() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.94, y: 15 }}
               transition={{ duration: 0.25, ease: [0.32, 0.72, 0, 1] }}
-              className="w-full max-w-lg bg-white rounded-2xl p-6 text-slate-800 shadow-2xl relative text-left border border-slate-100"
+              className="w-full max-w-lg bg-white dark:bg-[#12121c] rounded-2xl p-6 text-slate-800 dark:text-neutral-200 shadow-2xl relative text-left border border-slate-100 dark:border-white/10"
             >
-              <div className="flex items-start justify-between pb-4 border-b border-slate-100">
+              <div className="flex items-start justify-between pb-4 border-b border-slate-100 dark:border-white/10">
                 <div>
-                  <span className="text-[10px] font-bold text-[#d91438] tracking-widest uppercase">
+                  <span className="text-[10px] font-bold text-[#d91438] dark:text-[#ff4d6a] tracking-widest uppercase">
                     DELIVERABLE SPECIFICATION
                   </span>
-                  <h3 className="font-extrabold text-xl text-slate-900 mt-1">
+                  <h3 className="font-extrabold text-xl text-slate-900 dark:text-white mt-1">
                     {selectedTask.name}
                   </h3>
                 </div>
                 <button
                   onClick={() => setSelectedTask(null)}
-                  className="text-slate-400 hover:text-slate-700 text-lg px-2 py-1 cursor-pointer"
+                  className="text-slate-400 hover:text-slate-700 dark:hover:text-white text-lg px-2 py-1 cursor-pointer"
                 >
                   ✕
                 </button>
@@ -1242,48 +1264,48 @@ export default function StudentDashboardPage() {
 
               <div className="py-4 space-y-4">
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                  <label className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-neutral-400">
                     Description
                   </label>
-                  <p className="text-sm text-slate-600 mt-1 leading-relaxed">
+                  <p className="text-sm text-slate-600 dark:text-neutral-300 mt-1 leading-relaxed">
                     {selectedTask.description}
                   </p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 p-3.5 bg-slate-50 rounded-xl border border-slate-100">
+                <div className="grid grid-cols-2 gap-4 p-3.5 bg-slate-50 dark:bg-white/[0.04] rounded-xl border border-slate-100 dark:border-white/10">
                   <div>
-                    <span className="text-[11px] font-bold text-slate-400 uppercase">
+                    <span className="text-[11px] font-bold text-slate-400 dark:text-neutral-500 uppercase">
                       Status
                     </span>
-                    <p className="text-xs font-bold text-[#d91438] mt-0.5">
+                    <p className="text-xs font-bold text-[#d91438] dark:text-[#ff4d6a] mt-0.5">
                       {selectedTask.status}
                     </p>
                   </div>
                   <div>
-                    <span className="text-[11px] font-bold text-slate-400 uppercase">
+                    <span className="text-[11px] font-bold text-slate-400 dark:text-neutral-500 uppercase">
                       Due Date
                     </span>
-                    <p className="text-xs font-semibold text-slate-700 mt-0.5">
+                    <p className="text-xs font-semibold text-slate-700 dark:text-neutral-200 mt-0.5">
                       {selectedTask.deadline}
                     </p>
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                  <label className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-neutral-400">
                     Submission Links & Artifacts
                   </label>
-                  <p className="text-xs text-slate-500 mt-1">
+                  <p className="text-xs text-slate-500 dark:text-neutral-400 mt-1">
                     Google Classroom assignment templates, rubric benchmarks, and file upload dropzone.
                   </p>
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-slate-100 flex justify-end gap-2">
+              <div className="pt-4 border-t border-slate-100 dark:border-white/10 flex justify-end gap-2">
                 <Button
                   variant="outline"
                   onClick={() => setSelectedTask(null)}
-                  className="text-xs h-9 px-4 rounded-xl cursor-pointer"
+                  className="text-xs h-9 px-4 rounded-xl border-slate-200 dark:border-white/10 bg-transparent text-slate-700 dark:text-neutral-300 cursor-pointer"
                 >
                   Close
                 </Button>
