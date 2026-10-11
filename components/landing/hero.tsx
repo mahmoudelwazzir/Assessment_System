@@ -21,7 +21,6 @@ export function Hero() {
           proximity={160}
           shockRadius={220}
           shockStrength={6}
-          resistance={700}
           returnDuration={1.5}
         />
       </div>

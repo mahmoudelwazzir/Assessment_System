@@ -37,13 +37,23 @@ const navByRole: Record<AccountRole, NavItem[]> = {
     },
     { label: "Students", href: "/controller/students", icon: Users },
     {
-      label: "Enroll Students",
-      href: "/controller/enroll",
+      label: "Statistics & Structure",
+      href: "/controller/statistics",
       icon: ClipboardList,
     },
     {
-      label: "Statistics",
-      href: "/controller/statistics",
+      label: "Auto-Grading & Questions",
+      href: "/controller/questions-grading",
+      icon: FileText,
+    },
+    {
+      label: "Reports & Integrity",
+      href: "/controller/reports",
+      icon: History,
+    },
+    {
+      label: "Enroll Students",
+      href: "/controller/enroll",
       icon: ClipboardList,
     },
     { label: "Assign Roles", href: "/controller/assign", icon: ClipboardList },
@@ -51,14 +61,28 @@ const navByRole: Record<AccountRole, NavItem[]> = {
   ],
   assessor: [
     { label: "Students", href: "/assessor/students", icon: Users },
+    {
+      label: "Auto-Grading",
+      href: "/assessor/automated-grading",
+      icon: FileText,
+    },
     { label: "Competencies", href: "/assessor/competencies", icon: BookOpen },
     { label: "Submissions", href: "/assessor/submissions", icon: FileText },
   ],
   verifier: [
     { label: "Monitor", href: "/verifier/results", icon: ClipboardList },
+    {
+      label: "Reports & Integrity",
+      href: "/controller/reports",
+      icon: History,
+    },
     { label: "Competencies", href: "/verifier/competencies", icon: BookOpen },
     { label: "Send Report", href: "/verifier/report", icon: Send },
     { label: "Activity Log", href: "/verifier/log", icon: History },
+  ],
+  student: [
+    { label: "Student Dashboard", href: "/dashboard", icon: LayoutDashboard },
+    { label: "Competencies & Grades", href: "/dashboard", icon: BookOpen },
   ],
 };
 
@@ -101,6 +125,7 @@ export function RoleSidebar({ isOpen = true, onClose }: RoleSidebarProps) {
     controller: "Control",
     assessor: "Assessor",
     verifier: "Verifier",
+    student: "Student",
   };
 
   return (

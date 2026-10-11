@@ -43,27 +43,11 @@ export function RoleRouter({ children }: RoleRouterProps) {
     }
 
     // For assessors and verifiers, check their assigned role from roleContext
-    if (roleContext && roleContext.assignedRole) {
-      const assignedRole = roleContext.assignedRole;
-
-      console.log(
-        "Role Router - assigned role:",
-        assignedRole,
-        "current path:",
-        pathname,
-      );
-
-      // Redirect to the correct dashboard based on assigned role
-      if (assignedRole === "assessor" && !pathname.startsWith("/assessor")) {
-        router.push("/assessor/students");
-      } else if (
-        assignedRole === "verifier" &&
-        !pathname.startsWith("/verifier")
-      ) {
-        router.push("/verifier/results");
-      }
-    } else {
-      console.warn("⚠️ RoleRouter - No roleContext or assignedRole found");
+    const assignedRole = roleContext?.assignedRole || accountRole;
+    if (assignedRole === "assessor" && !pathname.startsWith("/assessor")) {
+      router.push("/assessor/students");
+    } else if (assignedRole === "verifier" && !pathname.startsWith("/verifier")) {
+      router.push("/verifier/results");
     }
   }, [user, isLoading, isRoleLoading, roleContext, pathname, router]);
 
@@ -78,8 +62,8 @@ export function RoleRouter({ children }: RoleRouterProps) {
 
   if (!user) return null;
 
-  // Non-controller users with no assignment
-  if (user.accountRole !== "controller" && !roleContext) {
+  // Only block if user has no role at all and no assignment
+  if (user.accountRole !== "controller" && user.accountRole !== "verifier" && !roleContext) {
     return <PendingAssignmentScreen />;
   }
 

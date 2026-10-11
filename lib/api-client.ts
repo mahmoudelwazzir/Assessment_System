@@ -552,6 +552,7 @@ export interface CourseRound {
   startDate?: string;
   endDate?: string;
   statusId: number; // 1 = active, 0 = inactive
+  isActive?: boolean;
   competencyName?: string;
   createdAt?: string;
 }
@@ -562,6 +563,7 @@ export interface CourseRoundRequest {
   startDate?: string;
   endDate?: string;
   statusId?: number; // 1 = active, 0 = inactive
+  isActive?: boolean;
 }
 
 export const courseRoundsApi = {
@@ -687,6 +689,8 @@ export interface CourseRoundAssignment {
   assignmentLink?: string;
   deadline: string;
   totalGrade: number;
+  maxScore?: number;
+  subTasks?: any[];
   createdAt: string;
   courseId: number;
   courseName?: string;

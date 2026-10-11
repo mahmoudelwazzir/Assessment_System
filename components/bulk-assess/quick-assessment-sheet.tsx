@@ -15,16 +15,16 @@ import type { Student, Competency, Grade } from "@/lib/types";
 interface QuickAssessmentSheetProps {
   readonly student: Student | null;
   readonly competency: Competency | null;
-  readonly currentTrial: number;
+  readonly currentTrial: Grade;
   readonly open: boolean;
   readonly onOpenChange: (open: boolean) => void;
   readonly onAssessmentComplete?: (data: {
     studentId: string;
     competencyId: string;
     grade: Grade;
-    outcomes: Record<string, boolean>;
+    scores?: Record<string, number>;
     notes: string;
-    trial: number;
+    trial: Grade;
   }) => void;
 }
 
@@ -43,7 +43,7 @@ export function QuickAssessmentSheet({
       studentId: student.id,
       competencyId: competency?.id ?? "",
       grade: data.grade as Grade,
-      outcomes: data.outcomes,
+      scores: data.scores,
       notes: data.notes,
       trial: data.trial,
     });

@@ -24,6 +24,9 @@ import { Badge } from "@/components/ui/badge";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import { FileCheck, CheckCircle2, XCircle } from "lucide-react";
+import type { Student } from "@/lib/api-client";
+import { useToast } from "@/hooks/use-toast";
+
 // Competencies should be supplied via props or API
 const mockCompetencies: any[] = [];
 
@@ -82,7 +85,7 @@ export function AssessmentSheet({
   useEffect(() => {
     if (selectedCompetencyForAssessment) {
       const initialStatuses: Record<string, "Passed" | "Failed" | null> = {};
-      selectedCompetencyForAssessment.learningOutcomes?.forEach((outcome) => {
+      selectedCompetencyForAssessment.learningOutcomes?.forEach((outcome: any) => {
         initialStatuses[outcome] = null;
       });
       setLearningOutcomeStatuses(initialStatuses);
@@ -132,7 +135,7 @@ export function AssessmentSheet({
 
     toast({
       title: "Assessment Submitted",
-      description: `Successfully assessed ${student.fullName} for ${selectedCompetencyForAssessment?.name}`,
+      description: `Successfully assessed ${student.fullNameEn} for ${selectedCompetencyForAssessment?.name}`,
     });
 
     if (setIsOpen) setIsOpen(false);
@@ -153,7 +156,7 @@ export function AssessmentSheet({
         <SheetHeader>
           <SheetTitle>New Competency Assessment</SheetTitle>
           <SheetDescription>
-            Assess {student.fullName} on a specific competency.
+            Assess {student.fullNameEn} on a specific competency.
           </SheetDescription>
         </SheetHeader>
 
@@ -190,7 +193,7 @@ export function AssessmentSheet({
                 </div>
                 <div className="space-y-4 bg-muted/30 p-4 rounded-lg border border-border">
                   {selectedCompetencyForAssessment.learningOutcomes?.map(
-                    (outcome, idx) => (
+                    (outcome: any, idx: number) => (
                       <div
                         key={idx}
                         className="flex flex-col gap-2 p-3 bg-card rounded-md border border-border/50 shadow-sm"

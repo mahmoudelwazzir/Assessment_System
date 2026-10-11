@@ -209,7 +209,7 @@ export default function VerifierReviewPage() {
     name: result.courseName || "Competency",
     gradeLevel: "Junior",
     description: `Verification of ${result.courseName || "competency"}`,
-    learningOutcomes: assignments.map((a) => a.title),
+    learningOutcomes: (assignments || []).map((a) => a.title),
     totalStudents: 0,
     gradeDistribution: { A: 0, B: 0, C: 0, D: 0 },
   };

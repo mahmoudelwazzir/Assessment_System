@@ -130,7 +130,7 @@ export default function AssessStudentPage() {
       const assignmentSubTasks = assignment.subTasks || [];
       const subTasks: SubTask[] =
         assignmentSubTasks.length > 0
-          ? assignmentSubTasks.map((st) => ({
+          ? assignmentSubTasks.map((st: any) => ({
               id: st.id.toString(),
               label: st.title || `Sub-Task ${st.taskNumber}`,
               maxPoints: st.maxScore || 100,

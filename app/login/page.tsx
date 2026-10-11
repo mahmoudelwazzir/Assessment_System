@@ -49,7 +49,7 @@ const DEMO_PRESETS = [
   {
     role: "Verifier",
     title: "Internal Verifier",
-    email: "eng@gmail.com",
+    email: "verifier@elsewedy.com",
     badge: "Internal QA",
     badgeClass: "border-emerald-500/30 text-emerald-400 bg-emerald-500/10",
   },
