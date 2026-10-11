@@ -38,16 +38,17 @@ function mapRoleToAccountRole(roleName: string): AccountRole {
     return "controller";
   if (normalized === "assessor") return "assessor";
   if (normalized === "verifier") return "verifier";
-  return "assessor"; // default fallback
+  if (normalized === "student") return "student";
+  return "student"; // default fallback
 }
 
 async function resolveRoleContext(
   userId: string,
   accountRole: AccountRole,
 ): Promise<CurrentRoleContext | null> {
-  // Controller has no cycle assignment — they manage everything
-  if (accountRole === "controller") {
-    return { accountRole: "controller" };
+  // Controller and Student have no cycle instructor assignment
+  if (accountRole === "controller" || accountRole === "student") {
+    return { accountRole };
   }
 
   try {

@@ -1,6 +1,6 @@
 export type GradeLevel = "Junior" | "Wheeler" | "Senior";
 export type Grade = "A" | "B" | "C" | "D";
-export type AccountRole = "controller" | "assessor" | "verifier";
+export type AccountRole = "controller" | "assessor" | "verifier" | "student";
 export type AssignedRole = "assessor" | "verifier";
 export type CycleStatus = "upcoming" | "active" | "closed";
 export type ResultStatus = "draft" | "submitted" | "approved";
