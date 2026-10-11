@@ -309,3 +309,4 @@ async function setupPageOverlays(page) {
     await browser.close();
   }
 })();
+
