@@ -66,6 +66,11 @@ const navByRole: Record<AccountRole, NavItem[]> = {
       href: "/assessor/automated-grading",
       icon: FileText,
     },
+    {
+      label: "Reports & Integrity",
+      href: "/assessor/reports",
+      icon: History,
+    },
     { label: "Competencies", href: "/assessor/competencies", icon: BookOpen },
     { label: "Submissions", href: "/assessor/submissions", icon: FileText },
   ],
@@ -73,7 +78,7 @@ const navByRole: Record<AccountRole, NavItem[]> = {
     { label: "Monitor", href: "/verifier/results", icon: ClipboardList },
     {
       label: "Reports & Integrity",
-      href: "/controller/reports",
+      href: "/verifier/reports",
       icon: History,
     },
     { label: "Competencies", href: "/verifier/competencies", icon: BookOpen },

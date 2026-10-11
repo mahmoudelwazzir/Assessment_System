@@ -45,8 +45,20 @@ export function RoleRouter({ children }: RoleRouterProps) {
     // For assessors and verifiers, check their assigned role from roleContext
     const assignedRole = roleContext?.assignedRole || accountRole;
     if (assignedRole === "assessor" && !pathname.startsWith("/assessor")) {
+      if (pathname === "/controller/reports") {
+        router.push("/assessor/reports");
+        return;
+      }
+      if (pathname === "/controller/questions-grading") {
+        router.push("/assessor/automated-grading");
+        return;
+      }
       router.push("/assessor/students");
     } else if (assignedRole === "verifier" && !pathname.startsWith("/verifier")) {
+      if (pathname === "/controller/reports") {
+        router.push("/verifier/reports");
+        return;
+      }
       router.push("/verifier/results");
     }
   }, [user, isLoading, isRoleLoading, roleContext, pathname, router]);
