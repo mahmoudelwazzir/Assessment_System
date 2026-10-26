@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Send, Lock, Zap, ChevronDown, ChevronUp, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Send, Lock, Zap, ChevronDown, ChevronUp, Loader2, Keyboard, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -78,12 +78,28 @@ export function AssessmentForm({
 
   const [scores, setScores] = useState<TaskScores>(initialScores);
   const [notes, setNotes] = useState(initialNotes);
+  const [selectedTrial, setSelectedTrial] = useState<Grade>(currentTrial);
   const [isSaving, setIsSaving] = useState(false);
   const [expanded, setExpanded] = useState<Record<string, boolean>>(() =>
     Object.fromEntries(tasks.map((t) => [t.id, true])),
   );
 
   const canEdit = !isLocked && !isCycleClosed;
+
+  const autoFillPreset = (ratio: number, defaultNote: string) => {
+    const newScores: TaskScores = {};
+    tasks.forEach((t) => {
+      t.subTasks.forEach((st) => {
+        newScores[`${t.id}.${st.id}`] = Math.round(st.maxPoints * ratio);
+      });
+    });
+    setScores(newScores);
+    setNotes(defaultNote);
+    toast({
+      title: `Preset Applied (${Math.round(ratio * 100)}%)`,
+      description: "Rubric criteria auto-populated for quick evaluation.",
+    });
+  };
 
   const handleScoreChange = (
     taskId: string,
@@ -115,7 +131,7 @@ export function AssessmentForm({
 
   // Pass = current trial letter, Fail = next trial letter
   const derivedGrade: Grade =
-    overallScore >= PASS_THRESHOLD ? currentTrial : nextTrial(currentTrial);
+    overallScore >= PASS_THRESHOLD ? selectedTrial : nextTrial(selectedTrial);
   const allTasksEntered = tasks.every((t) =>
     t.subTasks.every((st) => scores[`${t.id}.${st.id}`] !== undefined),
   );
@@ -124,14 +140,14 @@ export function AssessmentForm({
     scores,
     notes,
     grade: derivedGrade,
-    trial: currentTrial,
+    trial: selectedTrial,
   });
 
   const handleSubmit = () => {
     if (!allTasksEntered) {
       toast({
-        title: "Incomplete",
-        description: "Please enter scores for all subtasks.",
+        title: "Incomplete Rubric",
+        description: "Please enter scores for all required criteria.",
         variant: "destructive",
       });
       return;
@@ -142,6 +158,34 @@ export function AssessmentForm({
       onSubmit?.(buildData());
     }, 400);
   };
+
+  // Keyboard shortcut listener for fast grading on shop floor / workshop
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (target?.tagName === "INPUT" || target?.tagName === "TEXTAREA") {
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
+          e.preventDefault();
+          handleSubmit();
+        }
+        return;
+      }
+
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        handleSubmit();
+      } else if (e.key === "1") {
+        autoFillPreset(0.92, "Candidate demonstrates solid mastery of industrial competency standards, verified RTOS task synchronization, and safety guidelines.");
+      } else if (e.key === "2") {
+        autoFillPreset(0.82, "Candidate met baseline criteria with acceptable hardware demonstration.");
+      } else if (e.key === "3") {
+        autoFillPreset(0.65, "Candidate requires remedial review on FreeRTOS mutex deadlocks and memory boundary validation.");
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [scores, notes, allTasksEntered, selectedTrial]);
 
   return (
     <div className="space-y-5">
@@ -155,28 +199,86 @@ export function AssessmentForm({
         </div>
       )}
 
-      {/* ── Trial banner ──────────────────────────────────────── */}
-      <div className="bg-slate-50 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/10 rounded-2xl px-5 py-4 flex items-center justify-between shadow-sm">
-        <div>
-          <p className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-            Trial {currentTrial}
-          </p>
-          <p className="text-xs text-slate-500 dark:text-neutral-400 mt-1 font-medium">
-            Pass threshold: {PASS_THRESHOLD} pts per task
-          </p>
+      {/* ── Interactive Trial / Attempt Selector & Score Banner ── */}
+      <div className="bg-white dark:bg-[#121218] border border-slate-200/80 dark:border-white/10 rounded-3xl p-5 shadow-sm space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-neutral-400">
+                Current Assessment Trial
+              </span>
+              <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${overallScore >= PASS_THRESHOLD ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20" : "bg-red-500/10 text-[#c8102e] dark:text-[#ff4d6a] border border-red-500/20"}`}>
+                {overallScore >= PASS_THRESHOLD ? "Competency Achieved" : "Remediation Required"}
+              </span>
+            </div>
+
+            {/* Tactile Attempt A-D Selector Pills */}
+            <div className="flex items-center gap-2 mt-2.5 overflow-x-auto pb-1 scrollbar-none">
+              {(["A", "B", "C", "D"] as Grade[]).map((trialLetter) => {
+                const isCurrent = trialLetter === selectedTrial;
+                return (
+                  <button
+                    key={trialLetter}
+                    type="button"
+                    onClick={() => setSelectedTrial(trialLetter)}
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
+                      isCurrent
+                        ? "bg-[#c8102e] text-white border-[#c8102e] shadow-sm shadow-red-900/30 scale-[1.02]"
+                        : "bg-slate-50 dark:bg-white/5 text-slate-600 dark:text-neutral-400 border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20"
+                    }`}
+                  >
+                    <span>Attempt {trialLetter}</span>
+                    <span
+                      className={`text-[9px] font-mono px-1.5 py-0.5 rounded ${
+                        isCurrent
+                          ? "bg-white/20 text-white"
+                          : "bg-slate-200/80 dark:bg-white/10 text-slate-600 dark:text-neutral-400"
+                      }`}
+                    >
+                      {trialLetter === "A" && "Initial"}
+                      {trialLetter === "B" && "Retake 1"}
+                      {trialLetter === "C" && "Retake 2"}
+                      {trialLetter === "D" && "Final"}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="text-right shrink-0">
+            <p
+              className={`text-4xl font-black tracking-tight ${
+                overallScore >= PASS_THRESHOLD
+                  ? "text-emerald-600 dark:text-emerald-400"
+                  : "text-[#c8102e] dark:text-[#ff4d6a]"
+              }`}
+            >
+              {overallScore}
+              <span className="text-sm font-bold text-slate-400 dark:text-neutral-500 ml-1">
+                /100
+              </span>
+            </p>
+            <p className="text-[10px] font-bold text-slate-400 dark:text-neutral-500 uppercase tracking-widest mt-0.5">
+              Pass threshold: {PASS_THRESHOLD} pts
+            </p>
+          </div>
         </div>
-        <div className="text-right">
-          <p
-            className={`text-3xl font-extrabold tracking-tight ${overallScore >= PASS_THRESHOLD ? "text-emerald-600 dark:text-emerald-400" : "text-[#c8102e] dark:text-[#ff4d6a]"}`}
-          >
-            {overallScore}
-            <span className="text-xs font-bold text-slate-400 dark:text-neutral-500 ml-1">
-              /100
-            </span>
-          </p>
-          <p className="text-[10px] font-bold text-slate-400 dark:text-neutral-500 uppercase tracking-widest mt-0.5">
-            Overall avg
-          </p>
+
+        {/* Keyboard Shortcuts Helper Bar */}
+        <div className="pt-3 border-t border-slate-100 dark:border-white/5 flex items-center justify-between text-[11px] text-slate-500 dark:text-neutral-400 flex-wrap gap-2">
+          <div className="flex items-center gap-1.5 font-medium">
+            <Keyboard className="w-3.5 h-3.5 text-[#c8102e]" />
+            <span>Fast Grading Keys:</span>
+            <span className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-white/5 font-mono text-[10px] font-bold">1: 92%</span>
+            <span className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-white/5 font-mono text-[10px] font-bold">2: 82%</span>
+            <span className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-white/5 font-mono text-[10px] font-bold">3: 65%</span>
+            <span className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-white/5 font-mono text-[10px] font-bold">Ctrl+S: Submit</span>
+          </div>
+
+          <span className="text-[10px] font-semibold text-slate-400">
+            Elsewedy Workshop Touch-Optimized
+          </span>
         </div>
       </div>
 

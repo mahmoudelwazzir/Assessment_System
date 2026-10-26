@@ -175,14 +175,14 @@ export default function StudentDashboardPage() {
       }));
   }, [activeDossier]);
 
-  // Radar dataset: 4 Core Competency Pillars
+  // Radar dataset: 5 Core Competency Pillars with Institutional Benchmark
   const radarData = useMemo(() => {
     return [
-      { pillar: "Practical Coding", score: 96, fullMark: 100 },
-      { pillar: "Architecture & Design", score: 92, fullMark: 100 },
-      { pillar: "Industrial Safety (IEC)", score: 98, fullMark: 100 },
-      { pillar: "Documentation & Portfolio", score: 91, fullMark: 100 },
-      { pillar: "Teamwork & Agile", score: 95, fullMark: 100 },
+      { pillar: "Practical Coding", score: 96, benchmark: 82, fullMark: 100 },
+      { pillar: "Architecture & Design", score: 92, benchmark: 78, fullMark: 100 },
+      { pillar: "Industrial Safety (IEC)", score: 98, benchmark: 86, fullMark: 100 },
+      { pillar: "Documentation & QA", score: 91, benchmark: 75, fullMark: 100 },
+      { pillar: "Hardware Interfacing", score: 95, benchmark: 80, fullMark: 100 },
     ];
   }, []);
 
@@ -658,31 +658,151 @@ export default function StudentDashboardPage() {
 
               {/* Right Col: 4 Evaluation Pillars Radar */}
               <div className="p-6 rounded-3xl bg-white dark:bg-[#12131a] border border-slate-200/80 dark:border-white/10 shadow-sm space-y-4">
-                <div className="pb-2 border-b border-slate-100 dark:border-white/10">
-                  <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    <Target className="w-4 h-4 text-emerald-500" />
-                    Skill Mastery Pillars
-                  </h3>
-                  <p className="text-xs text-slate-500 dark:text-neutral-400">
-                    Comprehensive rubric performance index
-                  </p>
+                <div className="pb-2 border-b border-slate-100 dark:border-white/10 flex items-center justify-between">
+                  <div>
+                    <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                      <Target className="w-4 h-4 text-emerald-500" />
+                      Skill Mastery Pillars
+                    </h3>
+                    <p className="text-xs text-slate-500 dark:text-neutral-400">
+                      Rubric performance index vs. Academy benchmark
+                    </p>
+                  </div>
+                  <Badge className="bg-[#c8102e]/10 text-[#c8102e] border-[#c8102e]/20 text-[10px] font-bold">
+                    STA Certified
+                  </Badge>
                 </div>
 
                 <div className="h-64 sm:h-72 w-full">
                   <ResponsiveContainer width="100%" height="100%">
                     <RadarChart data={radarData}>
-                      <PolarGrid opacity={0.2} />
+                      <PolarGrid opacity={0.25} />
                       <PolarAngleAxis dataKey="pillar" tick={{ fontSize: 10, fill: "#94a3b8" }} />
                       <PolarRadiusAxis domain={[0, 100]} tick={false} axisLine={false} />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "#18181b",
+                          border: "1px solid rgba(255,255,255,0.1)",
+                          borderRadius: "12px",
+                          fontSize: "12px",
+                          color: "#fff",
+                        }}
+                      />
                       <Radar
-                        name="Skill Index"
+                        name="Candidate Performance"
                         dataKey="score"
                         stroke="#c8102e"
+                        strokeWidth={2}
                         fill="#c8102e"
-                        fillOpacity={0.4}
+                        fillOpacity={0.45}
+                      />
+                      <Radar
+                        name="Academy Benchmark"
+                        dataKey="benchmark"
+                        stroke="#94a3b8"
+                        strokeWidth={1.5}
+                        strokeDasharray="4 4"
+                        fill="#64748b"
+                        fillOpacity={0.15}
                       />
                     </RadarChart>
                   </ResponsiveContainer>
+                </div>
+
+                {/* Radar Legend */}
+                <div className="flex items-center justify-center gap-6 text-[11px] font-semibold text-slate-500 dark:text-neutral-400 pt-1 border-t border-slate-100 dark:border-white/5">
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-3 h-3 rounded-full bg-[#c8102e]" />
+                    <span>Candidate (Avg: 94.4%)</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-3 h-3 rounded-full bg-slate-400" />
+                    <span>Academy Benchmark (Avg: 80%)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* ============================================================== */}
+            {/* DIGITAL COMPETENCY DOSSIER BADGE & ATTEMPTS TIMELINE           */}
+            {/* ============================================================== */}
+            <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-slate-950 via-slate-900 to-[#1b0c0f] border border-slate-800 text-white shadow-xl relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-[#c8102e]/10 blur-[120px] pointer-events-none" />
+
+              <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-white/10">
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-[#c8102e]/20 text-[#ff4d6a] border border-[#c8102e]/40">
+                      <ShieldCheck className="w-3.5 h-3.5" />
+                      Verified Digital Credential
+                    </span>
+                    <span className="text-xs text-slate-400 font-mono">
+                      STA-CRED-{activeDossier.id}-2026
+                    </span>
+                  </div>
+                  <h3 className="text-xl sm:text-2xl font-black tracking-tight text-white">
+                    Elsewedy Technical Academy Competency Clearance
+                  </h3>
+                  <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
+                    Official evaluation record verifying candidate compliance with industrial standards,
+                    practical RTOS implementations, and electrical safety certifications.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-3 shrink-0">
+                  <Button
+                    onClick={handlePrint}
+                    className="h-10 px-5 rounded-xl bg-white hover:bg-slate-100 text-slate-950 font-bold text-xs shadow-md transition-all cursor-pointer"
+                  >
+                    <Printer className="w-3.5 h-3.5 mr-2" />
+                    Print Official Transcript
+                  </Button>
+                </div>
+              </div>
+
+              {/* Attempts Progression Milestone Ribbon */}
+              <div className="mt-6 pt-2">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4 flex items-center gap-1.5">
+                  <Activity className="w-3.5 h-3.5 text-[#ff4d6a]" />
+                  Interactive Attempts Progression & Audit Verification
+                </h4>
+
+                <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                  <div className="p-4 rounded-2xl bg-white/5 border border-emerald-500/30 backdrop-blur-sm">
+                    <div className="flex items-center justify-between text-xs mb-1.5">
+                      <span className="font-bold text-emerald-400">Attempt A (Initial)</span>
+                      <Badge className="bg-emerald-500/20 text-emerald-300 border-none text-[10px] font-bold">Passed</Badge>
+                    </div>
+                    <p className="text-xl font-black text-white">94% Score</p>
+                    <p className="text-[11px] text-slate-400 mt-1">First-time submission cleared with honors.</p>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                    <div className="flex items-center justify-between text-xs mb-1.5">
+                      <span className="font-bold text-slate-300">Attempt B (Retake 1)</span>
+                      <span className="text-[10px] font-semibold text-slate-400">Exempt</span>
+                    </div>
+                    <p className="text-xl font-black text-slate-400">N/A</p>
+                    <p className="text-[11px] text-slate-500 mt-1">Not required due to first-attempt mastery.</p>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                    <div className="flex items-center justify-between text-xs mb-1.5">
+                      <span className="font-bold text-slate-300">Attempt C (Retake 2)</span>
+                      <span className="text-[10px] font-semibold text-slate-400">Exempt</span>
+                    </div>
+                    <p className="text-xl font-black text-slate-400">N/A</p>
+                    <p className="text-[11px] text-slate-500 mt-1">Candidate met all threshold requirements.</p>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 backdrop-blur-sm">
+                    <div className="flex items-center justify-between text-xs mb-1.5">
+                      <span className="font-bold text-emerald-300">QA Verification</span>
+                      <Badge className="bg-emerald-500/30 text-emerald-200 border-none text-[10px] font-bold">Approved</Badge>
+                    </div>
+                    <p className="text-xl font-black text-emerald-400">Certified</p>
+                    <p className="text-[11px] text-emerald-300/80 mt-1">Audit signed by Internal Verifier.</p>
+                  </div>
                 </div>
               </div>
             </div>

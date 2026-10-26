@@ -2,10 +2,11 @@
 
 import { RoleSidebar } from "./role-sidebar";
 import { RoleRouter } from "./role-router";
-import { Menu, ShieldCheck } from "lucide-react";
+import { Menu, ShieldCheck, Search } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { GlobalCommandPalette } from "./command-palette";
 
 export function RoleLayout({
   children,
@@ -13,6 +14,7 @@ export function RoleLayout({
   readonly children: React.ReactNode;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [commandOpen, setCommandOpen] = useState(false);
   const { user, roleContext } = useAuth();
 
   const roleName =
@@ -55,6 +57,19 @@ export function RoleLayout({
             </div>
 
             <div className="flex items-center gap-3">
+              {/* Command Palette Trigger */}
+              <button
+                onClick={() => setCommandOpen(true)}
+                className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100/80 hover:bg-slate-200/80 dark:bg-white/5 dark:hover:bg-white/10 border border-slate-200/80 dark:border-white/10 text-xs text-slate-500 dark:text-neutral-400 transition-all cursor-pointer shadow-2xs"
+                title="Open Command Palette (Ctrl+K)"
+              >
+                <Search className="w-3.5 h-3.5 text-slate-400" />
+                <span className="hidden md:inline font-medium">Search or command...</span>
+                <kbd className="font-mono text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-white dark:bg-white/10 border border-slate-200 dark:border-white/10 text-slate-600 dark:text-neutral-300 shadow-2xs">
+                  Ctrl K
+                </kbd>
+              </button>
+
               {/* User details */}
               <div className="text-right hidden md:block">
                 <p className="text-xs font-bold text-slate-900 dark:text-white leading-tight">
@@ -83,6 +98,8 @@ export function RoleLayout({
           </main>
         </div>
       </div>
+
+      <GlobalCommandPalette open={commandOpen} onOpenChange={setCommandOpen} />
     </RoleRouter>
   );
 }

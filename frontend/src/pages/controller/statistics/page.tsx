@@ -35,7 +35,8 @@ import {
 import { useCourses, useCourseRounds, useStudents } from "@/hooks/use-api";
 
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5247/api";
+  (typeof import.meta !== "undefined" && import.meta.env?.VITE_API_URL) ||
+  "/api";
 
 function getAuthToken(): string | null {
   if (typeof window === "undefined") return null;
