@@ -12,11 +12,12 @@
 
 ## 🛠️ البنية التقنية (Tech Stack)
 
-### **Frontend**
-- **Framework**: Next.js 16 (App Router with Turbopack)
+### **Frontend (Node.js & React)**
+- **Runtime & Tooling**: Node.js + Vite (Pure SPA without `.next`)
+- **Framework**: React 19 & React Router DOM
 - **Styling**: Tailwind CSS, Elsewedy Brand Identity (`#c8102e`)
-- **Components**: Radix UI Primitives, Lucide Icons
-- **State & Theme**: React Hooks, Next Themes (Dark / Light)
+- **Components**: Radix UI Primitives, Lucide Icons, Framer Motion
+- **State & Theme**: React Context & Hooks, Theme Provider (Dark / Light)
 
 ### **Backend**
 - **Framework**: ASP.NET Core Web API (.NET 10)
@@ -46,24 +47,27 @@
 
 ## 🚀 التشغيل السريع (Getting Started)
 
-### 1. تشغيل الـ Backend (.NET Web API)
+### 1. تشغيل الـ Frontend (Node.js & React)
 ```bash
-# الانتقال لمسار مشروع الـ API والتشغيل
-dotnet run --project AssessmentWebApi/AssessmentWebApi/AssessmentWebApi.csproj --launch-profile http
-```
-- يعمل السيرفر على: **`http://localhost:5247`**
-- متصل مباشرة بقاعدة البيانات السحابية المرفوعة (`db56344`).
-
-### 2. تشغيل الـ Frontend (Next.js)
-```bash
-# تثبيت الاعتماديات (إذا لم تكن مثبتة)
-npm install
+# تثبيت الاعتماديات
+npm run build # أو npm install --prefix frontend --legacy-peer-deps
 
 # تشغيل سيرفر التطوير
 npm run dev
 ```
 - التطبيق متاح على: **`http://localhost:3000`**
 - صفحة تسجيل الدخول: **`http://localhost:3000/login`**
+
+### 2. تشغيل الـ Backend (.NET Web API)
+```bash
+# تشغيل الـ Backend من المسار الرئيسي عبر Node.js:
+npm run backend:dev
+
+# أو عبر dotnet مباشرة:
+dotnet run --project backend/AssessmentWebApi/AssessmentWebApi/AssessmentWebApi.csproj --launch-profile http
+```
+- يعمل السيرفر على: **`http://localhost:5247`**
+- متصل مباشرة بقاعدة البيانات السحابية المرفوعة (`db56344`).
 
 ---
 
@@ -84,31 +88,34 @@ flowchart LR
 
 ---
 
-## 📂 هيكل المشروع (Project Structure)
+## 📂 هيكل المشروع الجديد (Project Structure)
 
 ```text
 sewedy-assessment-system/
-├── app/                           # Next.js App Router (الصفحات والمسارات)
-│   ├── assessor/                  # واجهات المُقيّم (قوائم الطلاب، نموذج التقييم)
-│   ├── controller/                # واجهات المتحكم (إدارة الدورات، التعيينات)
-│   ├── verifier/                  # واجهات المُدقّق (المراجعة والتدقيق)
-│   └── login/                     # بوابة تسجيل الدخول الموحدة
-├── components/                    # مكونات الواجهة (UI & Design System)
-│   ├── assess/                    # نماذج التقييم التفاعلية
-│   ├── layout/                    # شريط التنقل وتوجيه الأدوار (RoleRouter)
-│   └── ui/                        # مكونات التصميم (Elsewedy Style)
-├── hooks/                         # React Custom Hooks للتعامل مع الـ API
-├── lib/                           # مكتبات الاتصال والتوثيق والـ Types
-│   ├── api-client.ts              # عميل الـ API المركزي
-│   ├── api-config.ts              # إعدادات الروابط
-│   └── auth-context.tsx           # إدارة جلسة المستخدم والأدوار
-├── AssessmentWebApi/              # ASP.NET Core Backend Solution
+├── frontend/                          # Client application (React 19 + Vite, Node.js runtime)
+│   ├── public/                        # Static assets (logos, images)
+│   ├── src/
+│   │   ├── components/                # Reusable UI & layout components
+│   │   ├── hooks/                     # Custom hooks (useApi, useToast)
+│   │   ├── lib/                       # API clients, auth context, types
+│   │   ├── pages/                     # Routed views (controller, assessor, verifier, student)
+│   │   ├── styles/                    # Global CSS and animations
+│   │   ├── App.tsx                    # React Router configuration
+│   │   └── main.tsx                   # React root mount
+│   ├── index.html                     # Entry HTML
+│   ├── package.json                   # Frontend dependencies
+│   └── vite.config.ts                 # Vite bundler & API proxy configuration
+├── backend/                           # Isolated Backend (ASP.NET Core Web API)
 │   └── AssessmentWebApi/
-│       ├── Controllers/           # وحدات التحكم (Auth, Students, Courses...)
-│       ├── Data/                  # سياق قاعدة البيانات (AppDbContext)
-│       ├── Dto_s/                 # كائنات نقل البيانات (DTOs)
-│       └── Repository/            # نمط المستودعات (Repository Pattern)
-└── README.md                      # توثيق المشروع
+│       ├── AssessmentWebApi/
+│       │   ├── Controllers/           # Controllers (Auth, Students, Courses...)
+│       │   ├── Data/                  # AppDbContext
+│       │   ├── Dto_s/                 # DTOs
+│       │   └── Repository/            # Repository implementations
+│       └── AssessmentWebApi.slnx      # Solution file
+├── docs/                              # Superpowers specs & implementation plans
+├── package.json                       # Root Node.js workspace orchestration
+└── README.md                          # Documentation
 ```
 
 ---
@@ -117,4 +124,3 @@ sewedy-assessment-system/
 - تشفير كلمات المرور باستخدام **SHA-256** مع التحقق من الهوية وصلاحيات الدور.
 - تصفية الصلاحيات على مستوى الـ Routing في الـ Frontend وحماية مسارات الـ API في الـ Backend.
 - تسجيل العمليات في سجل التدقيق الموحد (`AuditLog`).
-

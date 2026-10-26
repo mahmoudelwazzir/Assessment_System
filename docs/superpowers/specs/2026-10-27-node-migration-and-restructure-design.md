@@ -133,3 +133,4 @@ Replace Next.js App Router file-system routing with declarative `react-router-do
 3. **Routing & Auth**: Test navigation between `/login`, `/controller/dashboard`, `/assessor/students`, `/verifier/results`, and `/dashboard`.
 4. **Backend Connectivity**: Verify API requests succeed against `http://localhost:5247` or via Vite proxy `/api`.
 5. **No Next Artifacts**: Confirm `.next/`, `next.config.mjs`, and `next-env.d.ts` are completely removed.
+

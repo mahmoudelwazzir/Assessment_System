@@ -265,3 +265,4 @@
   Provide safe script that checks directory locks and renames `sewedy-assessment-system-main` to `sewedy-assessment-system`.
 
 - [ ] **Step 2: Commit script and provide direct execution command to user**
+

@@ -1,18 +1,14 @@
-# v0 runtime files (should only exist in preview, not in git)
-__v0_runtime_loader.js
-__v0_devtools.tsx
-__v0_jsx-dev-runtime.ts
-
 # Dependencies
 node_modules/
+frontend/node_modules/
 .pnp
 .pnp.js
 
-# Next.js build
-.next/
-out/
-build/
+# Build Outputs
 dist/
+frontend/dist/
+build/
+out/
 
 # .NET / C# build output
 **/[Bb]in/
@@ -25,6 +21,7 @@ dist/
 
 # Environment & OS
 .env*.local
+frontend/.env*.local
 .vscode/
 .DS_Store
 Thumbs.db
@@ -32,3 +29,4 @@ Thumbs.db
 .brud/
 scratch/
 *.tsbuildinfo
+.superpowers/
