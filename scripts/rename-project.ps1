@@ -30,3 +30,4 @@ try {
     Write-Host "   Rename-Item -LiteralPath '$OldPath' -NewName '$NewName'" -ForegroundColor Yellow
     Write-Host "3. Reopen the folder '$NewPath' in your editor." -ForegroundColor White
 }
+

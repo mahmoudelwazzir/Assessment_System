@@ -3,6 +3,9 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 
 export default defineConfig({
+  define: {
+    'process.env': {},
+  },
   plugins: [react()],
   resolve: {
     alias: {
@@ -11,6 +14,9 @@ export default defineConfig({
   },
   server: {
     port: 3000,
+    fs: {
+      strict: false,
+    },
     proxy: {
       '/api': {
         target: 'http://localhost:5247',
