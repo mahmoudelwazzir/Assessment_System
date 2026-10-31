@@ -130,8 +130,7 @@ namespace AssessmentWebApi.Repository.DashboardRepository
         public async Task<List<CompetencySubmissionDto>> GetSubmissionsByCompetency(long? courseRoundId, long? courseId, long? classId)
         {
             var studentQ = _context.Accounts.Where(a => a.Role != null &&
-                                                         a.Role.RoleName == "Student" &&
-                                                         a.Role.BusinessEntity == "Assessment");
+                                                         a.Role.RoleName == "Student");
             if (classId.HasValue) studentQ = studentQ.Where(a => a.StudentExtension != null && a.StudentExtension.ClassId == classId.Value);
             var sIds = await studentQ.Select(a => a.Id).ToListAsync();
 
@@ -156,14 +155,25 @@ namespace AssessmentWebApi.Repository.DashboardRepository
             ).ToListAsync();
             var totalMap = totalPerCourse.ToDictionary(x => x.CourseId, x => (x.Total, x.Title));
             var submittedMap = submittedPerCourse.ToDictionary(x => x.CourseId, x => x.Submitted);
-            var allIds = totalMap.Keys.Union(submittedMap.Keys).Distinct();
+            var allIds = totalMap.Keys.Union(submittedMap.Keys).Distinct().ToList();
+            var courseNames = await _context.Courses
+                .Where(c => allIds.Contains(c.Id))
+                .ToDictionaryAsync(c => c.Id, c => c.Title);
 
-            return allIds.Select(cid => new CompetencySubmissionDto
+            return allIds.Select(cid =>
             {
-                CourseId       = cid,
-                CompetencyName = totalMap.TryGetValue(cid, out var t) ? t.Title : "Unknown",
-                Submitted      = submittedMap.TryGetValue(cid, out var s) ? s : 0,
-                Total          = totalMap.TryGetValue(cid, out var tt) ? tt.Total : 0
+                var submitted = submittedMap.TryGetValue(cid, out var s) ? s : 0;
+                var total = totalMap.TryGetValue(cid, out var tt) ? tt.Total : submitted;
+                if (total < submitted) total = submitted;
+                var title = courseNames.TryGetValue(cid, out var cn) ? cn : (totalMap.TryGetValue(cid, out var t) ? t.Title : "Unknown");
+
+                return new CompetencySubmissionDto
+                {
+                    CourseId       = cid,
+                    CompetencyName = title,
+                    Submitted      = submitted,
+                    Total          = total
+                };
             }).ToList();
         }
 

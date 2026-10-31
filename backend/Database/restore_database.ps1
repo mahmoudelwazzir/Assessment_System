@@ -165,3 +165,4 @@ if (Test-Path $tempExtractDir) { Remove-Item -Recurse -Force $tempExtractDir }
 Write-Host "===========================================================" -ForegroundColor Cyan
 Write-Host " [SUCCESS] ElsewedySchoolSys restored & configured successfully!" -ForegroundColor Green
 Write-Host "===========================================================" -ForegroundColor Cyan
+
