@@ -33,12 +33,32 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Map backend role names to frontend AccountRole
 function mapRoleToAccountRole(roleName: string): AccountRole {
-  const normalized = roleName.toLowerCase();
-  if (normalized === "control" || normalized === "controller")
+  const normalized = (roleName || "").toLowerCase();
+  if (
+    normalized.includes("admin") ||
+    normalized.includes("superadmin") ||
+    normalized.includes("control")
+  ) {
     return "controller";
-  if (normalized === "assessor") return "assessor";
-  if (normalized === "verifier") return "verifier";
-  if (normalized === "student") return "student";
+  }
+  if (
+    normalized.includes("assessor") ||
+    normalized.includes("engineer") ||
+    normalized.includes("teacher") ||
+    normalized.includes("instructor")
+  ) {
+    return "assessor";
+  }
+  if (
+    normalized.includes("verifier") ||
+    normalized.includes("board") ||
+    normalized.includes("reviewer")
+  ) {
+    return "verifier";
+  }
+  if (normalized.includes("student")) {
+    return "student";
+  }
   return "student"; // default fallback
 }
 

@@ -1,4 +1,4 @@
-namespace AssessmentWebApi.Dto_s.CourseRoundAssignmentDto_s
+﻿namespace AssessmentWebApi.Dto_s.CourseRoundAssignmentDto_s
 {
     /// <summary>Assessment task-assignment response DTO.</summary>
     public class CourseRoundAssignmentResDto

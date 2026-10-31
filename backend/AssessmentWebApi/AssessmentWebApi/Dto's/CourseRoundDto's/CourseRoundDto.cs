@@ -1,4 +1,4 @@
-namespace AssessmentWebApi.Dto_s.CourseRoundDto_s
+﻿namespace AssessmentWebApi.Dto_s.CourseRoundDto_s
 {
     /// <summary>Assessment (trial period) response DTO.</summary>
     public class CourseRoundResDto

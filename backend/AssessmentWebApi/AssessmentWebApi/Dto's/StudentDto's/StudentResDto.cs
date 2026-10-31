@@ -1,4 +1,4 @@
-namespace AssessmentWebApi.Dto_s.StudentDto_s
+﻿namespace AssessmentWebApi.Dto_s.StudentDto_s
 {
     /// <summary>
     /// Full student response DTO — returned by all student endpoints.

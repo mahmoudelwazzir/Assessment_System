@@ -15,8 +15,7 @@ namespace AssessmentWebApi.Repository.DashboardRepository
         private async Task<List<long>> GetScopedStudentIds(long? courseRoundId, long? courseId, long? classId)
         {
             var q = _context.Accounts.Where(a => a.Role != null &&
-                                                  a.Role.RoleName == "Student" &&
-                                                  a.Role.BusinessEntity == "Assessment");
+                                                  a.Role.RoleName == "Student");
             if (classId.HasValue)
                 q = q.Where(a => a.StudentExtension != null && a.StudentExtension.ClassId == classId.Value);
             var ids = await q.Select(a => a.Id).ToListAsync();
@@ -96,8 +95,7 @@ namespace AssessmentWebApi.Repository.DashboardRepository
             var sq = _context.CourseRoundAssignmentSubmissions.AsQueryable();
             if (courseId.HasValue) sq = sq.Where(s => s.Assignment.CourseId == courseId.Value);
             var studentQ = _context.Accounts.Where(a => a.Role != null &&
-                                                           a.Role.RoleName == "Student" &&
-                                                           a.Role.BusinessEntity == "Assessment");
+                                                           a.Role.RoleName == "Student");
             if (classId.HasValue) studentQ = studentQ.Where(a => a.StudentExtension != null && a.StudentExtension.ClassId == classId.Value);
             var sIds = await studentQ.Select(a => a.Id).ToListAsync();
             var totalPerCourse = await (
@@ -254,7 +252,6 @@ namespace AssessmentWebApi.Repository.DashboardRepository
                 var total = await _context.Accounts
                     .Where(a => a.Role != null &&
                                 a.Role.RoleName == "Student" &&
-                                a.Role.BusinessEntity == "Assessment" &&
                                 a.StudentExtension != null &&
                                 a.StudentExtension.ClassId == cls.Id)
                     .CountAsync();
@@ -361,8 +358,7 @@ namespace AssessmentWebApi.Repository.DashboardRepository
             ).ToListAsync();
 
             var studentQ = _context.Accounts.Where(a => a.Role != null &&
-                                                           a.Role.RoleName == "Student" &&
-                                                           a.Role.BusinessEntity == "Assessment");
+                                                           a.Role.RoleName == "Student");
             if (classId.HasValue) studentQ = studentQ.Where(a => a.StudentExtension != null && a.StudentExtension.ClassId == classId.Value);
             var sIds = await studentQ.Select(a => a.Id).ToListAsync();
             var subQ = _context.CourseRoundAssignmentSubmissions.Where(s => sIds.Contains(s.StudentId));

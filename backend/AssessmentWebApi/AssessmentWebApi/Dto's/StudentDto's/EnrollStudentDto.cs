@@ -1,4 +1,4 @@
-namespace AssessmentWebApi.Dto_s.StudentDto_s
+﻿namespace AssessmentWebApi.Dto_s.StudentDto_s
 {
     /// <summary>
     /// Request body for enrolling one or more students into a competency (Course).

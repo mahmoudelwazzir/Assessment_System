@@ -27,10 +27,9 @@ namespace AssessmentWebApi.Repository.AuthRepository
                 .Include(a => a.Role)
                 .Include(a => a.Status)
                 .FirstOrDefaultAsync(a =>
-                    (a.Email.ToLower() == searchKey ||
-                     a.NationalId.ToLower() == searchKey ||
-                     a.Email.ToLower().StartsWith(searchKey + "@")) &&
-                    (a.Role == null || a.Role.BusinessEntity == "Assessment"));
+                    a.Email.ToLower() == searchKey ||
+                    a.NationalId.ToLower() == searchKey ||
+                    a.Email.ToLower().StartsWith(searchKey + "@"));
 
             if (account is null)
                 throw new UnauthorizedAccessException("Invalid email or password.");
@@ -190,8 +189,29 @@ namespace AssessmentWebApi.Repository.AuthRepository
             var cleanPlain = plainText.Trim();
             var cleanStored = storedHash.Trim();
 
-            return string.Equals(HashPassword(cleanPlain), cleanStored, StringComparison.OrdinalIgnoreCase)
-                || string.Equals(cleanPlain, cleanStored, StringComparison.OrdinalIgnoreCase);
+            // 1. Plain text comparison
+            if (string.Equals(cleanPlain, cleanStored, StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            // 2. SHA256 comparison
+            if (string.Equals(HashPassword(cleanPlain), cleanStored, StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            // 3. BCrypt verification
+            try
+            {
+                if (cleanStored.StartsWith("$2a$") || cleanStored.StartsWith("$2b$") || cleanStored.StartsWith("$2y$"))
+                {
+                    if (BCrypt.Net.BCrypt.Verify(cleanPlain, cleanStored))
+                        return true;
+                }
+            }
+            catch
+            {
+                // Ignore any bcrypt parsing errors and return false
+            }
+
+            return false;
         }
 
         private static string GenerateToken()

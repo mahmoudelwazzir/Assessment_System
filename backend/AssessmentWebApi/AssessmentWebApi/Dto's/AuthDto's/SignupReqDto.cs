@@ -1,4 +1,4 @@
-namespace AssessmentWebApi.Dto_s.AuthDto_s
+﻿namespace AssessmentWebApi.Dto_s.AuthDto_s
 {
     public class SignupReqDto
     {

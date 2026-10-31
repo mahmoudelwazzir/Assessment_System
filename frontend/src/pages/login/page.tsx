@@ -23,34 +23,38 @@ import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/hooks/use-toast";
 
 // =============================================================================
-// PRESETS FOR RAPID ACCESS & TESTING
+// PRESETS FOR RAPID ACCESS & TESTING (REAL DATABASE ACCOUNTS)
 // =============================================================================
 const DEMO_PRESETS = [
   {
-    role: "Student",
-    title: "Student Portal (Abd alhadi)",
-    email: "hadym2429@gmail.com",
-    badge: "Student Portal",
-    badgeClass: "border-red-500/30 text-red-400 bg-red-500/10",
-  },
-  {
     role: "Control",
-    title: "System Admin / Control",
-    email: "controller@gmail.com",
+    title: "Lead User (Control / Admin)",
+    email: "admin@elsewedy.com",
+    password: "123",
     badge: "Control Center",
     badgeClass: "border-amber-500/30 text-amber-400 bg-amber-500/10",
   },
   {
     role: "Assessor",
-    title: "Technical Assessor",
-    email: "eng2@gmail.com",
-    badge: "Evaluation QA",
+    title: "Eng. Zainab (Teacher / Assessor)",
+    email: "teacher1@elsewedy.com",
+    password: "123",
+    badge: "Technical Assessor",
     badgeClass: "border-blue-500/30 text-blue-400 bg-blue-500/10",
   },
   {
+    role: "Student",
+    title: "Hussein Mohamed (Student Portal)",
+    email: "student1@elsewedy.com",
+    password: "123",
+    badge: "Student Portal",
+    badgeClass: "border-red-500/30 text-red-400 bg-red-500/10",
+  },
+  {
     role: "Verifier",
-    title: "Internal Verifier",
-    email: "verifier@elsewedy.com",
+    title: "Student 2 (Verification / QA)",
+    email: "student2@elsewedy.com",
+    password: "123",
     badge: "Internal QA",
     badgeClass: "border-emerald-500/30 text-emerald-400 bg-emerald-500/10",
   },
@@ -106,12 +110,12 @@ function ElsewedyLogo({
 }
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("hadym2429@gmail.com");
-  const [password, setPassword] = useState("123456");
+  const [email, setEmail] = useState("admin@elsewedy.com");
+  const [password, setPassword] = useState("123");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedRole, setSelectedRole] = useState<string | null>("Student");
+  const [selectedRole, setSelectedRole] = useState<string | null>("Control");
   const [showAccountsModal, setShowAccountsModal] = useState(false);
 
   // Mouse spotlight coordinates for the interactive dark grid
@@ -145,7 +149,7 @@ export default function LoginPage() {
   const handleSelectPreset = (preset: (typeof DEMO_PRESETS)[0]) => {
     setSelectedRole(preset.role);
     setEmail(preset.email);
-    setPassword("123456");
+    setPassword(preset.password || "123");
   };
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
@@ -663,7 +667,7 @@ export default function LoginPage() {
                     <p className="text-xs text-slate-500 dark:text-neutral-400">
                       Live database accounts with password:{" "}
                       <code className="text-[#e21836] dark:text-white font-mono bg-slate-100 dark:bg-white/15 px-1.5 py-0.5 rounded">
-                        123456
+                        123
                       </code>
                     </p>
                   </div>
@@ -714,7 +718,7 @@ export default function LoginPage() {
 
               <div className="mt-5 pt-4 border-t border-slate-100 dark:border-white/10 flex justify-between items-center text-xs text-slate-500 dark:text-neutral-400">
                 <span>
-                  Default password: <strong>123456</strong>
+                  Default password: <strong>123</strong>
                 </span>
                 <Button
                   onClick={() => setShowAccountsModal(false)}

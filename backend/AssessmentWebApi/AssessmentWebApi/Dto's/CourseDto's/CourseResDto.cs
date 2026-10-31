@@ -1,4 +1,4 @@
-namespace AssessmentWebApi.Dto_s.CourseDto_s
+﻿namespace AssessmentWebApi.Dto_s.CourseDto_s
 {
     public class CourseResDto
     {

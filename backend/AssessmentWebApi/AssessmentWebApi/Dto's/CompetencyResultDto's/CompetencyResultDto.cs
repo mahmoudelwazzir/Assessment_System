@@ -1,4 +1,4 @@
-namespace AssessmentWebApi.Dto_s.CompetencyResultDto_s
+﻿namespace AssessmentWebApi.Dto_s.CompetencyResultDto_s
 {
     /// <summary>Response DTO for a competency result record.</summary>
     public class CompetencyResultResDto

@@ -1,4 +1,4 @@
-namespace AssessmentWebApi.Dto_s.DashboardDto_s
+﻿namespace AssessmentWebApi.Dto_s.DashboardDto_s
 {
     // ─────────────────────────────────────────────────────────────────────
     // FULL DASHBOARD (original)

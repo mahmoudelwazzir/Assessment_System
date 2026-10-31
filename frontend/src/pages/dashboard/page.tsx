@@ -88,33 +88,13 @@ export default function StudentDashboardPage() {
   const { user, logout } = useAuth();
   const { data: apiStudents, isLoading: isStudentsLoading } = useStudents();
 
-  // Combine backend students with known dossiers
+  // Load real students from database
   const availableStudents = useMemo(() => {
-    if (apiStudents && apiStudents.length > 0) {
-      return apiStudents;
-    }
-    return [
-      { id: 10, fullNameEn: "Abd alhadi eabd alhamaid", fullNameAr: "عبد الهادي عبد الحميد", email: "hadym2429@gmail.com", nationalId: "29901011999991", phone: "01012345678" },
-      { id: 4, fullNameEn: "Ibrahim Adel", fullNameAr: "إبراهيم عادل", email: "ibrahim.adel1@school.com", nationalId: "30501011234564", phone: "01000000004" },
-      { id: 12, fullNameEn: "Ahmed Hassan Mostafa", fullNameAr: "أحمد حسن مصطفى", email: "ahmed.hassan@elsewedy.edu.eg", nationalId: "29903031999993", phone: "01034567890" },
-      { id: 13, fullNameEn: "Mariam Tarek Youssef", fullNameAr: "مريم طارق يوسف", email: "mariam.tarek@elsewedy.edu.eg", nationalId: "29904041999994", phone: "01045678901" },
-      { id: 14, fullNameEn: "Omar Khaled Farouk", fullNameAr: "عمر خالد فاروق", email: "omar.farouk@elsewedy.edu.eg", nationalId: "29905051999995", phone: "01056789012" },
-      { id: 15, fullNameEn: "Nourhan Mostafa El-Sayed", fullNameAr: "نورهان مصطفى السيد", email: "nourhan.sayed@elsewedy.edu.eg", nationalId: "29906061999996", phone: "01067890123" },
-      { id: 16, fullNameEn: "Youssef Amr Abdelrahman", fullNameAr: "يوسف عمرو عبد الرحمن", email: "youssef.amr@elsewedy.edu.eg", nationalId: "29907071999997", phone: "01078901234" },
-      { id: 17, fullNameEn: "Salma Mohamed Radwan", fullNameAr: "سلمى محمد رضوان", email: "salma.radwan@elsewedy.edu.eg", nationalId: "29908081999998", phone: "01089012345" },
-      { id: 18, fullNameEn: "Karim Hany El-Naggar", fullNameAr: "كريم هاني النجار", email: "karim.elnaggar@elsewedy.edu.eg", nationalId: "29909091999999", phone: "01090123456" },
-      { id: 19, fullNameEn: "Ziad Tamer Mansour", fullNameAr: "زياد تامر منصور", email: "ziad.mansour@elsewedy.edu.eg", nationalId: "29910101999901", phone: "01001234567" },
-      { id: 20, fullNameEn: "Fatma Ahmed Ezzat", fullNameAr: "فاطمة أحمد عزت", email: "fatma.ezzat@elsewedy.edu.eg", nationalId: "29911111999902", phone: "01012345670" },
-      { id: 21, fullNameEn: "Mostafa Alaa El-Din", fullNameAr: "مصطفى علاء الدين", email: "mostafa.alaa@elsewedy.edu.eg", nationalId: "29912121999903", phone: "01023456781" },
-      { id: 22, fullNameEn: "Reem Sherif Kamal", fullNameAr: "ريم شريف كمال", email: "reem.kamal@elsewedy.edu.eg", nationalId: "29913131999904", phone: "01034567892" },
-      { id: 23, fullNameEn: "Hazem Wael Soliman", fullNameAr: "حازم وائل سليمان", email: "hazem.soliman@elsewedy.edu.eg", nationalId: "29914141999905", phone: "01045678903" },
-      { id: 24, fullNameEn: "Mona Ashraf Tawfik", fullNameAr: "منى أشرف توفيق", email: "mona.ashraf@elsewedy.edu.eg", nationalId: "29915151999906", phone: "01056789014" },
-      { id: 25, fullNameEn: "Elsewedy Student Portal", fullNameAr: "طالب أكاديمية السويدي", email: "student@elsewedy.com", nationalId: "29901019999999", phone: "01099999999" },
-    ];
+    return apiStudents || [];
   }, [apiStudents]);
 
-  // Selected student state (defaults to Abd alhadi eabd alhamaid ID 10 or current user)
-  const [selectedStudentId, setSelectedStudentId] = useState<number>(10);
+  // Selected student state (defaults to logged-in user or first active student)
+  const [selectedStudentId, setSelectedStudentId] = useState<number>(user?.accountId || 6);
   const [studentSearchQuery, setStudentSearchQuery] = useState("");
   const [isSelectorOpen, setIsSelectorOpen] = useState(false);
 

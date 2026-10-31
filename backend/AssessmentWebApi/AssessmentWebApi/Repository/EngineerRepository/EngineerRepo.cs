@@ -17,8 +17,12 @@ namespace AssessmentWebApi.Repository.EngineerRepository
                 .Include(a => a.Status)
                 .Where(a =>
                     a.RoleId == null ||
-                    (a.Role != null && a.Role.BusinessEntity == "Assessment" &&
-                     (a.Role.RoleName == "Assessor" || a.Role.RoleName == "Verifier")))
+                    (a.Role != null &&
+                     (a.Role.RoleName == "Assessor" ||
+                      a.Role.RoleName == "Verifier" ||
+                      a.Role.RoleName == "Engineer" ||
+                      a.Role.RoleName == "Teacher" ||
+                      a.Role.RoleName == "StaffAdmin")))
                 .Select(a => new EngineerResDto
                 {
                     Id         = a.Id,

@@ -1,4 +1,4 @@
-﻿using AssessmentWebApi.Data;
+using AssessmentWebApi.Data;
 using AssessmentWebApi.Dto_s.AccountDto_s;
 using AssessmentWebApi.Dto_s.StudentDto_s;
 using AssessmentWebApi.Models;
@@ -17,8 +17,7 @@ namespace AssessmentWebApi.Repository.StudentRepository
         private IQueryable<Account> StudentQuery() =>
             _context.Accounts
                 .Where(a => a.Role != null &&
-                            a.Role.RoleName == "Student" &&
-                            a.Role.BusinessEntity == "Assessment")
+                            a.Role.RoleName == "Student")
                 .Include(a => a.Role)
                 .Include(a => a.Status)
                 .Include(a => a.StudentExtension);
@@ -85,8 +84,7 @@ namespace AssessmentWebApi.Repository.StudentRepository
         {
             return await _context.Accounts
                 .Where(a => a.Role != null &&
-                            a.Role.RoleName == "Student" &&
-                            a.Role.BusinessEntity == "Assessment")
+                            a.Role.RoleName == "Student")
                 .Include(a => a.Role)
                 .Include(a => a.Status)
                 .Select(a => new AccountResDto
@@ -278,8 +276,7 @@ namespace AssessmentWebApi.Repository.StudentRepository
             var studentAccounts = await _context.Accounts
                 .Where(a => request.StudentIds.Contains(a.Id) &&
                             a.Role != null &&
-                            a.Role.RoleName == "Student" &&
-                            a.Role.BusinessEntity == "Assessment")
+                            a.Role.RoleName == "Student")
                 .Include(a => a.Role)
                 .ToListAsync();
 

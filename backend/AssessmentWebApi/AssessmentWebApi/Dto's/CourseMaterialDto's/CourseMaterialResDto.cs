@@ -1,4 +1,4 @@
-namespace AssessmentWebApi.Dto_s.CourseMaterialDto_s
+﻿namespace AssessmentWebApi.Dto_s.CourseMaterialDto_s
 {
     /// <summary>Task response DTO.</summary>
     public class CourseMaterialResDto
