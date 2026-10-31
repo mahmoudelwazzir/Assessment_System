@@ -89,22 +89,22 @@ flowchart TD
 - **Serializers**: System.Text.Json مع حماية `ReferenceHandler.IgnoreCycles`
 
 ### 🗄️ قاعدة البيانات (Database)
-- **RDBMS**: Microsoft SQL Server
-- **Hosting**: سحابية نشطة ومجهزة ببيانات التجربة المسبقة (`db56344.public.databaseasp.net`)
+- **RDBMS**: Microsoft SQL Server (LocalDB / Express / Enterprise)
+- **Database Name**: `ElsewedySchoolSys` (قاعدة البيانات الرسمية تضم **4,739 حساب** و **3,634 طالب** و **28 مادة تقييم فني**)
+- **Backup & Restore**: يتوفر ملف النسخة الاحتياطية وسكربت استرجاع فوري بنقرة واحدة داخل المجلد `backend/Database/`
 
 ---
 
-## 👥 حسابات الدخول المتاحة للتجربة (Pre-seeded Accounts)
+## 👥 حسابات الدخول المتاحة للتجربة (Live Database Accounts)
 
-جميع الحسابات التالية مسجلة مسبقاً وتعمل مباشرة مع قاعدة البيانات السحابية:
+جميع الحسابات التالية حقيقية ومسجلة في قاعدة بيانات `ElsewedySchoolSys` وتعمل مباشرة:
 
-| الدور (Role) | البريد الإلكتروني (Email) | كلمة المرور (Password) | الصلاحيات ومسار الواجهة |
+| الدور (Role) | البريد الإلكتروني (Email) | كلمة المرور (Password) | الاسم والصلاحيات |
 | :--- | :--- | :--- | :--- |
-| **Control (المتحكم)** | `controler@gmail.com` | `123456` | إدارة الدورات، تعيين المهندسين، تسجيل الطلاب، والتقارير (`/controller/*`) |
-| **Assessor (المُقيّم)** | `eng2@gmail.com` | `123456` | رصد درجات الطلاب، تقييم المحاولات A-D، والملاحظات (`/assessor/*`) |
-| **Verifier (المُدقّق)** | `eng@gmail.com` | `123456` | مراجعة واعتماد التقييمات وتدقيق الجودة (`/verifier/*`) |
-| **Student (طالب 1)** | `ibrahim.adel1@school.com` | `123456` | استعراض نتائج التقييمات، ملف الكفاءات، وسجل الأداء (`/dashboard`) |
-| **Student (طالب 2)** | `ahmed.sayed2@school.com` | `123456` | حساب طالب إضافي مسجل بالدورة الحالية |
+| **Control (مسؤول النظام)** | `admin@elsewedy.com` | `123` | **Lead User** - إدارة الدورات، تعيين المقيمين والمدققين، تسجيل الطلاب، والتقارير (`/controller/*`) |
+| **Assessor (المُقيّم الفني)** | `teacher1@elsewedy.com` | `123` | **Eng. Zainab** - رصد درجات الطلاب، تقييم المحاولات A-D، والملاحظات (`/assessor/*`) |
+| **Student (بوابة الطالب)** | `student1@elsewedy.com` | `123` | **Hussein Mohamed** - استعراض نتائج التقييمات، ملف الكفاءات، وسجل الأداء (`/dashboard`) |
+| **Verifier (المُدقّق / QA)** | `student2@elsewedy.com` | `123` | **Hussein Mohamed (QA)** - مراجعة واعتماد التقييمات وتدقيق الجودة (`/verifier/*`) |
 
 > 💡 **ميزة سريعة:** تحتوي صفحة تسجيل الدخول على أزرار **Quick Preset** تمكّنك من ملء بيانات أي دور بنقرة زر واحدة للتجربة الفورية!
 
@@ -115,6 +115,17 @@ flowchart TD
 ### المتطلبات الأساسية (Prerequisites):
 - تثبيت **[Node.js](https://nodejs.org/)** (الإصدار 20 أو أحدث)
 - تثبيت **[.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)**
+- تثبيت **SQL Server LocalDB** (مرفق مع Visual Studio) أو أي نسخة SQL Server
+
+---
+
+### 0️⃣ إعداد قاعدة البيانات (Database Setup - يُنفذ مرة واحدة)
+
+لاسترجاع قاعدة البيانات الرسمية `ElsewedySchoolSys` ببياناتها الكاملة:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File backend/Database/restore_database.ps1
+```
 
 ---
 

@@ -30,9 +30,11 @@ Thumbs.db
 scratch/
 *.tsbuildinfo
 .superpowers/
-backend/Database/
 *.mdf
 *.ldf
 *.bak
+backend/Database/*.mdf
+backend/Database/*.ldf
+backend/Database/*.bak
 .vite_cache/
 frontend/.vite_cache/
